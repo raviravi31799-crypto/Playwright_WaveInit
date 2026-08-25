@@ -33,6 +33,7 @@ export class AddTrainingPage extends BasePage {
     readonly editCapacityInput: Locator;
     readonly deleteTrainingBtn: Locator;
     readonly confirmDeleteBtn: Locator;
+    readonly searchTrainingInput: Locator;
 
     constructor(page: Page) {
 
@@ -172,6 +173,9 @@ this.confirmDeleteBtn = page.getByRole(
         name: "Confirm",
         exact: true
     }
+);
+this.searchTrainingInput = page.getByPlaceholder(
+    "Search by title or trainer..."
 );
     }
 
@@ -431,6 +435,45 @@ async verifyTrainingDeleted(trainingTitle: string): Promise<void> {
             state: "hidden",
             timeout: 10000
         });
+}
+async searchTraining(searchText: string) {
+
+    const searchField = this.page.getByPlaceholder(
+        "Search by title or trainer..."
+    );
+
+    await searchField.fill(searchText);
+
+    await this.page.waitForTimeout(500);
+}
+// =====================================
+// SEARCH TRAINING
+// =====================================
+
+async enterSearchValue(
+    searchValue: string
+): Promise<void> {
+
+    await this.searchTrainingInput.fill(searchValue);
+
+    await this.page.waitForTimeout(500);
+}
+
+async verifySearchResult(
+    searchValue: string
+): Promise<void> {
+
+    const matchingRow = this.page
+        .locator("tbody tr")
+        .filter({
+            hasText: searchValue
+        })
+        .first();
+
+    await matchingRow.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
 }
 }
 
