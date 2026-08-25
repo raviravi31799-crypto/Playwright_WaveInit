@@ -1,10 +1,14 @@
 import { CustomWorld } from "../world/world";
 import { Browser, chromium, firefox, webkit } from "@playwright/test";
 import { Before, After, BeforeAll, AfterAll, Status, setDefaultTimeout } from "@cucumber/cucumber";
+import { BasePage } from "../pages/basepage";
+import { HomePage } from "../pages/home.page";
+import { RegisterPage } from "../pages/register.page";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 import path from "path";
 import fs from "fs";
+import { LoginPage } from "../pages/ADMIN/Loginpage";
 
 let browser: Browser;
 
@@ -29,7 +33,7 @@ BeforeAll(async () => {
             break;
         case "chromium":
         default:
-            browser = await chromium.launch(launchOptions);
+            browser = await chromium.launch({...launchOptions,channel: "chrome"});
             break;
     }
 
@@ -44,6 +48,12 @@ Before(async function (this: CustomWorld, scenario) {
         ignoreHTTPSErrors: true
     });
     this.page = await this.browserContext.newPage();
+
+    // Automatically initialize page objects for the scenario
+    this.basePage = new BasePage(this.page);
+    this.homePage = new HomePage(this.page);
+    this.registerPage = new RegisterPage(this.page);
+    this.loginPage = new LoginPage(this.page);
 });
 
 After(async function (this: CustomWorld, { pickle, result }) {

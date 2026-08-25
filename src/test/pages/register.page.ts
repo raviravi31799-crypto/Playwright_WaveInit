@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { BasePage } from "./base.page";
+import { BasePage } from "./basepage";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 
@@ -17,8 +17,11 @@ export class RegisterPage extends BasePage {
     readonly termsCheckbox: Locator;
     readonly submitBtn: Locator;
 
-    // Success & Validation Locators
+    // Success & Error Locators
     readonly successBanner: Locator;
+    readonly errorMessage: Locator;
+    readonly passwordMismatchError: Locator;
+    readonly termsError: Locator;
     readonly redirectingMessage: Locator;
     readonly signInLink: Locator;
 
@@ -38,8 +41,11 @@ export class RegisterPage extends BasePage {
         this.termsCheckbox = page.locator("input[type='checkbox'], input.auth-checkbox, #terms");
         this.submitBtn = page.locator("button:has-text('Create Account'), button.auth-submit-btn, button[type='submit']");
 
-        // Success Banner & Redirect Notifications
+        // Success & Error Banners
         this.successBanner = page.locator("text=/Registration submitted successfully/i");
+        this.errorMessage = page.locator("text=/An account with this email/i").or(page.locator("div:has-text('already exists'), div:has-text('already registered')")).first();
+        this.passwordMismatchError = page.locator("text=/Passwords do not match/i").first();
+        this.termsError = page.locator("text=/You must agree to the terms/i").first();
         this.redirectingMessage = page.locator("text=/Redirecting to login/i");
         this.signInLink = page.locator("a[href='/login'], a:has-text('Sign in' i)");
     }
@@ -104,9 +110,9 @@ export class RegisterPage extends BasePage {
     }
 
     /**
-     * Fill all registration details in one call
+     * Fill all registration details exactly as provided (no transformation)
      */
-    async enterValidDetails(
+    async enterExactDetails(
         firstName: string,
         lastName: string,
         email: string,
@@ -134,10 +140,31 @@ export class RegisterPage extends BasePage {
     }
 
     /**
+     * Fill all registration details in one call
+     */
+    async enterValidDetails(
+        firstName: string,
+        lastName: string,
+        email: string,
+        number: string,
+        password: string,
+        confirmPassword: string
+    ): Promise<void> {
+        await this.enterExactDetails(firstName, lastName, email, number, password, confirmPassword);
+    }
+
+    /**
      * Check Terms and Conditions checkbox
      */
     async acceptTerms(): Promise<void> {
         await this.check(this.termsCheckbox, "Terms of Service Checkbox");
+    }
+
+    /**
+     * Uncheck / do not accept Terms and Conditions checkbox
+     */
+    async uncheckTerms(): Promise<void> {
+        await this.uncheck(this.termsCheckbox, "Terms of Service Checkbox");
     }
 
     /**
@@ -166,6 +193,42 @@ export class RegisterPage extends BasePage {
         const actualText = await this.getSuccessMessageText();
         expect(actualText).toContain(expectedPartialText);
         logger.info("Registration success assertion passed!");
+    }
+
+    /**
+     * Assert error message is displayed when registering with duplicate email
+     */
+    async assertErrorMessage(expectedMessage: string): Promise<void> {
+        logger.info(`Asserting error banner is visible and contains: "${expectedMessage}"`);
+        await this.errorMessage.waitFor({ state: "visible", timeout: 10000 });
+        const actualText = (await this.errorMessage.textContent()) || "";
+        logger.info(`Captured error message text: "${actualText.trim()}"`);
+        expect(actualText.toLowerCase()).toContain(expectedMessage.toLowerCase());
+        logger.info("Error message assertion passed!");
+    }
+
+    /**
+     * Assert password mismatch error is displayed
+     */
+    async assertPasswordMismatchError(expectedMessage: string = "Passwords do not match"): Promise<void> {
+        logger.info(`Asserting password mismatch error contains: "${expectedMessage}"`);
+        await this.passwordMismatchError.waitFor({ state: "visible", timeout: 10000 });
+        const actualText = (await this.passwordMismatchError.textContent()) || "";
+        logger.info(`Captured password mismatch text: "${actualText.trim()}"`);
+        expect(actualText.toLowerCase()).toContain(expectedMessage.toLowerCase());
+        logger.info("Password mismatch assertion passed!");
+    }
+
+    /**
+     * Assert terms unchecked error is displayed
+     */
+    async assertTermsError(expectedMessage: string = "You must agree to the terms"): Promise<void> {
+        logger.info(`Asserting terms error contains: "${expectedMessage}"`);
+        await this.termsError.waitFor({ state: "visible", timeout: 10000 });
+        const actualText = (await this.termsError.textContent()) || "";
+        logger.info(`Captured terms error text: "${actualText.trim()}"`);
+        expect(actualText.toLowerCase()).toContain(expectedMessage.toLowerCase());
+        logger.info("Terms error assertion passed!");
     }
 }
 

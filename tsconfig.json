@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "strict": true,
     "sourceMap": true,
-    "outDir": "./dist"
+    //"outDir": "./dist"
   },
   "include": [
     "src/**/*",
