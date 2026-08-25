@@ -10,25 +10,25 @@ And clicks on signin as admin
 Then the user is directed to the dashboard page showing welcome message
 
 
-#Scenario Outline: Verify the invalid admin login functionality with different invalid datas
-#When the user enters "<email>" and "<password>"
-#And clicks on signin as admin
-#Then the user receives an "<error message>"
+Scenario Outline: Verify the invalid admin login functionality with different invalid datas
+When the user enters "<email>" and "<password>"
+And clicks on signin as admin
+Then the user receives an "<errormessage>"
 
-#Examples:
-#|email            |password   |error message             |
-#|admin@gmail.com  |admin123   |Invalid email or password |
-#|admin@test.com   |admin      |Invalid email or password |
-#|admin@gmail.com  |admin      |Invalid email or password |
+Examples:
+|email            |password   |errormessage             |
+|admin@gmail.com  |admin123   |Invalid email or password |
+|admin@test.com   |admin      |Invalid email or password |
+|admin@gmail.com  |admin      |Invalid email or password |
 
 
-#Scenario Outline: Verify admin login with blank mandatory fields
-#When the user fills "<email>" and "<password>"
-#And clicks on signin as admin
-#Then the user should receive an "<alert message>"
+Scenario Outline: Verify admin login with blank mandatory fields
+When the user fills "<email>" and "<password>"
+And clicks on signin as admin
+Then the user should receive an "<alertmessage>"
 
-#Examples:
-#|email           |passsword   |alert message               |
-#|                |admin123    |Please fill out this field. |
-#|admin@test.com  |            |Please fill out this field. |
-#|                |            |Please fill out this field. |
+Examples:
+|email           |passsword   |alertmessage               |
+|                |admin123    |Please fill out this field. |
+|admin@test.com  |            |Please fill out this field. |
+|                |            |Please fill out this field. |
