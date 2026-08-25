@@ -31,6 +31,8 @@ export class AddTrainingPage extends BasePage {
     readonly editStartDateInput: Locator;
     readonly editEndDateInput: Locator;
     readonly editCapacityInput: Locator;
+    readonly deleteTrainingBtn: Locator;
+    readonly confirmDeleteBtn: Locator;
 
     constructor(page: Page) {
 
@@ -159,6 +161,18 @@ export class AddTrainingPage extends BasePage {
         this.editCapacityInput = page.locator(
             "input[type='number']"
         ).first();
+        // Delete Training
+this.deleteTrainingBtn = page
+    .getByTitle("Delete Training")
+    .first();
+
+this.confirmDeleteBtn = page.getByRole(
+    "button",
+    {
+        name: "Confirm",
+        exact: true
+    }
+);
     }
 
 
@@ -362,24 +376,62 @@ async editTrainer(trainer: string): Promise<void> {
 
 
     async clickSaveChanges(): Promise<void> {
+    await this.saveChangesBtn.click();
 
-        await this.saveChangesBtn.click();
-    }
+    await this.page
+        .getByText("Training Programs", { exact: true })
+        .waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+}
 
 
-    async verifyTrainingUpdated(
-        trainingTitle: string
-    ): Promise<void> {
+    async verifyTrainingUpdated(trainingTitle: string): Promise<void> {
+    await this.page
+        .getByText(trainingTitle, { exact: true })
+        .waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+}
+    // =====================================
+// DELETE TRAINING
+// =====================================
 
-        await this.page
-            .getByText(
-                trainingTitle,
-                { exact: true }
-            )
-            .waitFor({
-                state: "visible"
-            });
-    }
+async clickDeleteTraining(): Promise<void> {
+    await this.deleteTrainingBtn.click();
+}
+
+async verifyDeleteConfirmation(): Promise<void> {
+    await this.confirmDeleteBtn.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+}
+
+async confirmDeleteTraining(): Promise<void> {
+    await this.confirmDeleteBtn.click();
+}
+async getFirstTrainingTitle(): Promise<string> {
+    const firstRow = this.page.locator("tbody tr").first();
+
+    return (
+        await firstRow
+            .locator("td")
+            .nth(0)
+            .innerText()
+    ).trim();
+}
+
+async verifyTrainingDeleted(trainingTitle: string): Promise<void> {
+    await this.page
+        .getByText(trainingTitle, { exact: true })
+        .waitFor({
+            state: "hidden",
+            timeout: 10000
+        });
+}
 }
 
 export default AddTrainingPage;

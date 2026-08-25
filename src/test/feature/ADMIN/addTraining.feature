@@ -21,3 +21,10 @@ Scenario: Verify the admin can edit all training details
     And the admin edits all training details
     And the admin clicks the Save Changes button
     Then the training details should be updated successfully
+    
+@DeleteTraining
+Scenario: Verify the admin can delete a training session
+    When the admin clicks the Delete Training button
+    Then the delete confirmation should be displayed
+    When the admin confirms the training deletion
+    Then the training should be deleted successfully

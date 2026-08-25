@@ -244,53 +244,85 @@ When(
     }
 );
 
+
 When(
     "the admin edits all training details",
     async function (this: CustomWorld) {
 
-        logger.info("1. Editing title");
-
-        await this.addTrainingPage.editTrainingTitle(
-            editTrainingData.trainingTitle
+        // Edit Training Title
+        logger.info(
+            "1. Editing title"
         );
 
-        logger.info("2. Title edited");
-
-        await this.addTrainingPage.editDescription(
-            editTrainingData.description
-        );
-
-        // logger.info("3. Description edited");
-
-        // await this.addTrainingPage.editTrainer(
-        //     editTrainingData.trainer
-        // );
-
-        logger.info("4. Trainer edited");
-
-        await this.addTrainingPage.editStartDate(
-            editTrainingData.startDate
-        );
-
-        logger.info("5. Start date edited");
-
-        await this.addTrainingPage.editEndDate(
-            editTrainingData.endDate
-        );
-
-        logger.info("6. End date edited");
-
-        await this.addTrainingPage.editCapacity(
-            editTrainingData.capacity
-        );
-
-        logger.info("7. Capacity edited");
+        await this.addTrainingPage
+            .editTrainingTitle(
+                editTrainingData.trainingTitle
+            );
 
         logger.info(
-            "All training details edited successfully"
+            "2. Title edited"
+        );
+
+
+        // Edit Description
+        await this.addTrainingPage
+            .editDescription(
+                editTrainingData.description
+            );
+
+        logger.info(
+            "3. Description edited"
+        );
+
+
+        /*
+         * Trainer is intentionally NOT changed.
+         */
+        logger.info(
+            "4. Trainer unchanged"
+        );
+
+
+        // Edit Start Date
+        await this.addTrainingPage
+            .editStartDate(
+                editTrainingData.startDate
+            );
+
+        logger.info(
+            "5. Start date edited"
+        );
+
+
+        // Edit End Date
+        await this.addTrainingPage
+            .editEndDate(
+                editTrainingData.endDate
+            );
+
+        logger.info(
+            "6. End date edited"
+        );
+
+
+        // Edit Capacity
+        await this.addTrainingPage
+            .editCapacity(
+                editTrainingData.capacity
+            );
+
+        logger.info(
+            "7. Capacity edited"
+        );
+
+
+        logger.info(
+            "All editable training details edited successfully"
         );
     }
 );
+
+
 When(
     "the admin clicks the Save Changes button",
     async function (this: CustomWorld) {
@@ -316,6 +348,69 @@ Then(
 
         logger.info(
             `Training "${editTrainingData.trainingTitle}" updated successfully`
+        );
+    }
+);
+
+
+// =====================================
+// DELETE TRAINING
+// =====================================
+
+let deletedTrainingTitle: string;
+
+When(
+    "the admin clicks the Delete Training button",
+    async function (this: CustomWorld) {
+
+        deletedTrainingTitle =
+            await this.addTrainingPage.getFirstTrainingTitle();
+
+        await this.addTrainingPage.clickDeleteTraining();
+
+        logger.info(
+            `Delete Training button clicked for "${deletedTrainingTitle}"`
+        );
+    }
+);
+
+
+Then(
+    "the delete confirmation should be displayed",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage
+            .verifyDeleteConfirmation();
+
+        logger.info(
+            "Delete confirmation displayed"
+        );
+    }
+);
+
+
+When(
+    "the admin confirms the training deletion",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage.confirmDeleteTraining();
+
+        logger.info(
+            "Training deletion confirmed"
+        );
+    }
+);
+
+Then(
+    "the training should be deleted successfully",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage.verifyTrainingDeleted(
+            deletedTrainingTitle
+        );
+
+        logger.info(
+            `Training "${deletedTrainingTitle}" deleted successfully`
         );
     }
 );
