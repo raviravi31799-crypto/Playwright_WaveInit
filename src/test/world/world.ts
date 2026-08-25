@@ -6,6 +6,7 @@ import type { HomePage } from "../pages/home.page";
 import type { RegisterPage } from "../pages/register.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
+import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -17,6 +18,8 @@ export class CustomWorld extends World {
     logger = logger;
     loginPage!: LoginPage;
     addTrainingPage!:AddTrainingPage;
+    addTrainerPage!: AddTrainerPage;
+
 
     constructor(options: IWorldOptions) {
         super(options);

@@ -15,7 +15,7 @@ export class LoginPage extends BasePage{
     // private password=this.page.locator("//input[@id='login-password']");
     // private signin=this.page.locator("//button[@class='auth-submit-btn']");
     private welcometext =this.page.locator("//h1[@class='adb-welcome-title']");
-
+    private errorMessage = this.page.locator("//div[contains(text(),'Invalid email or password')]" );
 
    
     
@@ -53,6 +53,17 @@ export class LoginPage extends BasePage{
     await this.clickSignIn();
     await this.Welcomemessage();
     }
+    async verifyInvalidLoginMessage(errormessage: string) {
+        const error = await this.errorMessage.textContent();
+          await expect(error).toContain(errormessage);
+}
+async verifyRequiredFieldMessage(alertmessage: string) {
+    const invalidField = this.page.locator("input:invalid").first();
+
+    const actualMessage = await invalidField.evaluate((element: HTMLInputElement) => element.validationMessage);
+
+    expect(actualMessage).toBe(alertmessage);
+}
 
 }
 

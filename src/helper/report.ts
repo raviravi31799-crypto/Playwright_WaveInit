@@ -5,8 +5,7 @@ import { ENV } from "../test/utils/envReader";
 const report = require("multiple-cucumber-html-reporter");
 
 const jsonDir = path.resolve(process.cwd(), "reports/cucumber-json");
-const reportPath = path.resolve(process.cwd(), "reports/cucumber-html");
-
+const reportPath = path.resolve(process.cwd(), "reports/multiple-cucumber-html");
 if (!fs.existsSync(jsonDir)) {
     fs.mkdirSync(jsonDir, { recursive: true });
 }
@@ -22,7 +21,7 @@ if (jsonFiles.length === 0) {
 } else {
     report.generate({
         jsonDir: "./reports/cucumber-json",
-        reportPath: "./reports/cucumber-html",
+        reportPath: "./reports/multiple-cucumber-html",
         reportName: "WaveInit LMS Automation Test Report",
         pageTitle: "WaveInit Test Report",
         displayDuration: true,
