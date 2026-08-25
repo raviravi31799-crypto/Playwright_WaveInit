@@ -1,18 +1,34 @@
 {
+  "name": "playwright_waveinit",
+  "version": "1.0.0",
+  "description": "Playwright + Cucumber BDD + TypeScript test framework for WaveInit",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js",
+    "register": "cucumber-js --tags @register",
+    "test:register": "cucumber-js --tags @register",
+    "sriram": "cucumber-js --tags @sriram",
+    "test:smoke": "cucumber-js --tags @smoke",
+    "test:regression": "cucumber-js --tags @regression",
+    "parallel": "cucumber-js --parallel 2",
+    "report": "ts-node src/helper/report.ts",
+    "rerun": "cucumber-js --profile rerun",
+    "test:report": "npm run test && npm run report"
+  },
   "dependencies": {
+    "@cucumber/cucumber": "^13.2.1",
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
+    "multiple-cucumber-html-reporter": "^3.8.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.23.12",
     "winston": "^3.19.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^13.2.1",
-    "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0",
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.0.0",
     "allure-playwright": "^3.10.2",
-    "multiple-cucumber-html-reporter": "^4.3.0",
-    "typescript": "^7.0.2"
-  },
-  "scripts": {}
+    "typescript": "^5.7.3"
+  }
 }
