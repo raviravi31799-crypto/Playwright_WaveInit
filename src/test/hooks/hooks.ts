@@ -1,7 +1,7 @@
 import { CustomWorld } from "../world/world";
 import { Browser, chromium, firefox, webkit } from "@playwright/test";
 import { Before, After, BeforeAll, AfterAll, Status, setDefaultTimeout } from "@cucumber/cucumber";
-import { BasePage } from "../pages/base.page";
+import { BasePage } from "../pages/basepage";
 import { HomePage } from "../pages/home.page";
 import { RegisterPage } from "../pages/register.page";
 import { ENV } from "../utils/envReader";
