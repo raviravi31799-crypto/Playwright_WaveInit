@@ -22,8 +22,10 @@ module.exports = {
             "progress",
             "json:reports/cucumber-json/cucumber-report.json",
             "html:reports/cucumber-html/cucumber-report.html",
-            "rerun:rerun/rerun.txt"
-        ],
+            "rerun:rerun/rerun.txt",
+            "allure-cucumberjs/reporter",
+   
+],
         parallel: 1
     },
 
