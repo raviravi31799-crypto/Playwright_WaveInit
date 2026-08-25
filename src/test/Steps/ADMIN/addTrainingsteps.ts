@@ -50,3 +50,37 @@ Then("the new training should be displayed in the list",async function (this: Cu
         logger.info(`Training "${trainingTitle}" displayed successfully`);
     }
 );
+When(
+    "the admin clicks the View icon for the training",
+    async function (this: CustomWorld) {
+
+        trainingTitle = trainingData.trainingTitle;
+
+        await this.addTrainingPage.clickViewTraining();
+    }
+);
+
+Then(
+    "the training details should be displayed",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage.verifyTrainingDetails();
+    }
+);
+When(
+    "the admin clicks the Close button",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage.clickClose();
+    }
+);
+
+Then(
+    "the training details should be closed",
+    async function (this: CustomWorld) {
+
+        await this.page
+            .getByRole("button", { name: "Close", exact: true })
+            .waitFor({ state: "hidden" });
+    }
+);

@@ -13,6 +13,8 @@ export class AddTrainingPage extends BasePage {
     readonly capacity: Locator;
     readonly createTrainingBtn: Locator;
     readonly backToTrainingsBtn: Locator;
+    readonly viewTrainingBtn: Locator;
+    readonly closeBtn: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -66,7 +68,19 @@ export class AddTrainingPage extends BasePage {
         this.backToTrainingsBtn = page.getByRole(
     "button",
     { name: "Back to Trainings" }
+    
 );
+    // Existing locators...
+
+    this.viewTrainingBtn = page.locator(
+        "button:has(svg.lucide-eye)"
+    ).first();
+
+    this.closeBtn = page.getByRole(
+        "button",
+        { name: "Close", exact: true }
+    );
+
     }
 
     async clickTrainingPrograms(): Promise<void> {
@@ -107,6 +121,19 @@ export class AddTrainingPage extends BasePage {
     }
     async clickBackToTrainings(): Promise<void> {
     await this.backToTrainingsBtn.click();
+}
+async clickViewTraining(): Promise<void> {
+    await this.viewTrainingBtn.click();
+}
+
+async verifyTrainingDetails(): Promise<void> {
+    await this.page
+        .getByText("Training Details", { exact: true })
+        .waitFor({ state: "visible" });
+}
+
+async clickClose(): Promise<void> {
+    await this.closeBtn.click();
 }
 }
 
