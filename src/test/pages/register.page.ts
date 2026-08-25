@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { BasePage } from "./base.page";
+import { BasePage } from "./basepage";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 import { RegisterExcelData } from "../utils/excelReader";
