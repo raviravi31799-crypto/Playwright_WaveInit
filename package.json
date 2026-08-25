@@ -14,7 +14,8 @@
     "parallel": "cucumber-js --parallel 2",
     "report": "ts-node src/helper/report.ts",
     "rerun": "cucumber-js --profile rerun",
-    "test:report": "npm run test && npm run report"
+    "test:report": "npm run test && npm run report",
+     "posttest": "npx ts-node src/helper/report.ts"
   },
   "dependencies": {
     "@cucumber/cucumber": "^13.2.1",
