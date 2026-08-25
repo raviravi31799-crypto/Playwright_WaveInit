@@ -10,7 +10,7 @@ module.exports = {
             "src/test/world/**/*.ts",
             "src/test/hooks/**/*.ts",
             "src/test/Steps/**/*.ts",
-            "src/test/stepdefinitions/**/*.ts"
+           
         ],
         paths: [
             "src/test/feature/**/*.feature",
