@@ -13,6 +13,7 @@
     "positive": "cucumber-js --tags @positive",
     "negative": "cucumber-js --tags @negative",
     "sriram": "cucumber-js --tags @sriram",
+    "jagadeep": "cucumber-js --tags @jagadeep",
     "Jothika": "cucumber-js --tags @Jothika",
     "Harini":"cucumber-js --tags @Harini",
     "test:smoke": "cucumber-js --tags @smoke",
