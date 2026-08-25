@@ -45,6 +45,14 @@ export class LoginPage extends BasePage{
          expect(welcomeMessage).toContain("Welcome");
 
     }
+    async Adminlogin(){
+    await this.openLoginPage();
+    await this.selectAdmin();
+    await this.enterEmail(ENV.VALID_EMAIL);
+    await this.enterPassword(ENV.VALID_PASSWORD);
+    await this.clickSignIn();
+    await this.Welcomemessage();
+    }
 
 }
 
