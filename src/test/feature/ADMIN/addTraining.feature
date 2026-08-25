@@ -15,3 +15,9 @@ Scenario: Verify the training session is created with valid details
     Then the training details should be displayed
     When the admin clicks the Close button
     Then the training details should be closed
+ @EditTraining
+Scenario: Verify the admin can edit all training details
+    When the admin clicks the Edit Training button
+    And the admin edits all training details
+    And the admin clicks the Save Changes button
+    Then the training details should be updated successfully
