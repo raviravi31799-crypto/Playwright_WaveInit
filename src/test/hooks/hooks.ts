@@ -1,6 +1,9 @@
 import { CustomWorld } from "../world/world";
 import { Browser, chromium, firefox, webkit } from "@playwright/test";
 import { Before, After, BeforeAll, AfterAll, Status, setDefaultTimeout } from "@cucumber/cucumber";
+import { BasePage } from "../pages/base.page";
+import { HomePage } from "../pages/home.page";
+import { RegisterPage } from "../pages/register.page";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 import path from "path";
@@ -45,6 +48,11 @@ Before(async function (this: CustomWorld, scenario) {
         ignoreHTTPSErrors: true
     });
     this.page = await this.browserContext.newPage();
+
+    // Automatically initialize page objects for the scenario
+    this.basePage = new BasePage(this.page);
+    this.homePage = new HomePage(this.page);
+    this.registerPage = new RegisterPage(this.page);
     this.loginPage = new LoginPage(this.page);
 });
 
