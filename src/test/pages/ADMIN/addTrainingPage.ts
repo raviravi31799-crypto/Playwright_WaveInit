@@ -17,7 +17,6 @@ export class AddTrainingPage extends BasePage {
     constructor(page: Page) {
         super(page);
 
-        // Training Programs
         this.trainingPrograms = page.getByText(
             "Training Programs",
             { exact: true }
