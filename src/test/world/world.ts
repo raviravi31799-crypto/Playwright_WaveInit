@@ -1,6 +1,7 @@
+import { AddTrainingPage } from './../pages/ADMIN/addTrainingPage';
 import { setWorldConstructor, World, IWorldOptions } from "@cucumber/cucumber";
 import { Browser, BrowserContext, Page } from "@playwright/test";
-import type { BasePage } from "../pages/base.page";
+import type { BasePage } from "../pages/basepage";
 import type { HomePage } from "../pages/home.page";
 import type { RegisterPage } from "../pages/register.page";
 import { logger } from "../utils/logger";
@@ -15,6 +16,7 @@ export class CustomWorld extends World {
     registerPage!: RegisterPage;
     logger = logger;
     loginPage!: LoginPage;
+    addTrainingPage!:AddTrainingPage;
 
     constructor(options: IWorldOptions) {
         super(options);
