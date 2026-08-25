@@ -1,65 +1,56 @@
 module.exports = {
     default: {
-
         formatOptions: {
-            snippetInterface: "async-await",
+            snippetInterface: "async-await"
         },
-
         requireModule: [
             "ts-node/register"
         ],
-
         require: [
-            "src/test/hooks/*.ts",
-            "src/test/steps/*.ts"
+            "src/test/world/**/*.ts",
+            "src/test/hooks/**/*.ts",
+            "src/test/Steps/**/*.ts",
+            "src/test/stepdefinitions/**/*.ts"
         ],
-
         paths: [
+            "src/test/feature/**/*.feature",
             "src/test/features/**/*.feature"
         ],
-
         publishQuiet: true,
         dryRun: false,
-
         format: [
-            "html:reports/cucumber-html/cucumber-report.html",
+            "progress",
             "json:reports/cucumber-json/cucumber-report.json",
-            "rerun:rerun/rerun.txt",
-            "allure-cucumberjs/reporter",
-            "progress"
-        ]
+            "html:reports/cucumber-html/cucumber-report.html",
+            "rerun:rerun/rerun.txt"
+        ],
+        parallel: 1
     },
 
     rerun: {
-
         formatOptions: {
-            snippetInterface: "async-await",
-            resultsDir: "allure-results"
+            snippetInterface: "async-await"
         },
-
         requireModule: [
-            "tsx"
+            "ts-node/register"
         ],
-
         require: [
-            "src/hooks/*.ts",
-            "src/test/steps/*.ts",
-            "src/test/support/**/*.ts"
+            "src/test/world/**/*.ts",
+            "src/test/hooks/**/*.ts",
+            "src/test/Steps/**/*.ts",
+            "src/test/stepdefinitions/**/*.ts"
         ],
-
         paths: [
             "rerun/rerun.txt"
         ],
-
         publishQuiet: true,
         dryRun: false,
-
         format: [
-            "html:reports/cucumber-html/cucumber-report.html",
+            "progress",
             "json:reports/cucumber-json/cucumber-report.json",
-            "rerun:rerun/rerun.txt",
-            "allure-cucumberjs/reporter",
-            "progress"
-        ]
+            "html:reports/cucumber-html/cucumber-report.html",
+            "rerun:rerun/rerun.txt"
+        ],
+        parallel: 1
     }
 };

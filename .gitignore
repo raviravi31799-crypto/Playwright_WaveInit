@@ -1,9 +1,21 @@
-
-
-# Playwright
+# Dependencies
 node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+
+# Build & TypeScript
+dist/
+
+# Test Results & Reports
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+reports/
+rerun/
+allure-results/
+allure-report/
+
+# OS & Environment
+.env.local
+.DS_Store
+Thumbs.db
