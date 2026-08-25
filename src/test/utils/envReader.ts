@@ -20,8 +20,8 @@ export const ENV = {
     BROWSER: (process.env.BROWSER || "chromium").toLowerCase() as "chromium" | "firefox" | "webkit",
     HEADLESS: process.env.HEADLESS !== undefined ? process.env.HEADLESS === "true" : true,
     DEFAULT_TIMEOUT: process.env.DEFAULT_TIMEOUT ? parseInt(process.env.DEFAULT_TIMEOUT, 10) : 30000,
-    USERNAME: process.env.USERNAME || "",
-    PASSWORD: process.env.PASSWORD || ""
+    VALID_EMAIL: process.env.VALID_EMAIL || "",
+    VALID_PASSWORD: process.env.VALID_PASSWORD || ""
 };
 
 export default ENV;
