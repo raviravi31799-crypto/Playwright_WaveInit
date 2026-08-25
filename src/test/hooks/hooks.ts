@@ -5,6 +5,7 @@ import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 import path from "path";
 import fs from "fs";
+import { LoginPage } from "../pages/ADMIN/Loginpage";
 
 let browser: Browser;
 
@@ -29,7 +30,7 @@ BeforeAll(async () => {
             break;
         case "chromium":
         default:
-            browser = await chromium.launch(launchOptions);
+            browser = await chromium.launch({...launchOptions,channel: "chrome"});
             break;
     }
 
@@ -44,6 +45,7 @@ Before(async function (this: CustomWorld, scenario) {
         ignoreHTTPSErrors: true
     });
     this.page = await this.browserContext.newPage();
+    this.loginPage = new LoginPage(this.page);
 });
 
 After(async function (this: CustomWorld, { pickle, result }) {
