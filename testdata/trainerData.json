@@ -1,0 +1,12 @@
+{
+  "fullName": "Sarah Johnson",
+  "email": "sarah.johnson@company.com",
+  "invalidEmail": "sarah.johnson#company.com",
+  "mobile": "9876543210",
+  "department": "Engineering",
+  "designation": "Senior Software Engineer",
+  "experience": "1-3 years",
+  "password": "Test@1234",
+  "confirmPassword": "Test@1234",
+  "mismatchedConfirmPassword": "Test@5678"
+}
