@@ -1,7 +1,8 @@
 module.exports = {
     default: {
         formatOptions: {
-            snippetInterface: "async-await"
+            snippetInterface: "async-await",
+            resultsDir: "reports/allure-results"
         },
         requireModule: [
             "ts-node/register"
