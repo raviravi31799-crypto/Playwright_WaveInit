@@ -9,3 +9,4 @@ Scenario: Verify the training session is created with valid details
     And the admin clicks the Create Training Session button 
     Then the training session should be created successfully 
     And the new training should be displayed in the list
+    
