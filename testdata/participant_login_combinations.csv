@@ -1,0 +1,5 @@
+testCaseId,description,email,password,expectedValidation
+TC_LOGIN_01,Both email and password empty,,,Please fill out this field.
+TC_LOGIN_02,Empty email with password,,sriram123@,Please fill out this field.
+TC_LOGIN_03,Empty password with email,titooram123@gmail.com,,Please fill out this field.
+TC_LOGIN_04,Invalid email with empty password,invalid_user,,Please fill out this field.
