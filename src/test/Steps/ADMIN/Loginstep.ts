@@ -23,22 +23,23 @@ Then('the user is directed to the dashboard page showing welcome message', async
   await this.loginPage.Welcomemessage();
 });
 
-// When('the user enters {string} and {string}', async function (string, string2) {
-//   // Write code here that turns the phrase above into concrete actions
-//   return 'pending';
-// });
+When('the user enters {string} and {string}', async function (this:CustomWorld,email, password) {
+  await this.loginPage.enterEmail(email);
+  await this.loginPage.enterPassword(password);
+  await this.loginPage.clickSignIn();
+});
 
-// Then('the user receives an {string}', async function (string) {
-//   // Write code here that turns the phrase above into concrete actions
-//   return 'pending';
-// });
+Then('the user receives an {string}', async function (this:CustomWorld,errormessage:string) {
+  await this.loginPage.verifyInvalidLoginMessage(errormessage);
+});
 
-// When('the user fills {string} and {string}', async function (string, string2) {
-//   // Write code here that turns the phrase above into concrete actions
-//   return 'pending';
-// });
+When('the user fills {string} and {string}', async function (this:CustomWorld,email, password) {
+ await this.loginPage.enterEmail(email);
+ await this.loginPage.enterPassword(password);
+ await this.loginPage.clickSignIn();
 
-// Then('the user should receive an {string}', async function (string) {
-//   // Write code here that turns the phrase above into concrete actions
-//   return 'pending';
-// });
+});
+
+Then('the user should receive an {string}', async function (this:CustomWorld,alertmessage:string) {
+  await this.loginPage.verifyRequiredFieldMessage(alertmessage);
+});

@@ -33,7 +33,7 @@ BeforeAll(async () => {
             break;
         case "chromium":
         default:
-            browser = await chromium.launch({...launchOptions,channel: "chrome"});
+            browser = await chromium.launch(launchOptions);
             break;
     }
 
