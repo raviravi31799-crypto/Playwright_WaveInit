@@ -66,14 +66,11 @@ export class TrainerPage extends BasePage {
     }
 
     async verifyValidCourseSearch(courseName: string): Promise<void> {
-        logger.info(`Verifying valid search result for: ${courseName}`);
-        const results = await this.courseCards.filter({ visible: true }).allTextContents();
-        logger.info(`Displayed course results: ${JSON.stringify(results)}`);
-        expect(results.length, `No course results were displayed for "${courseName}"`).toBeGreaterThan(0);
-        const matchingResult = results.some(course => course.trim().toLowerCase().includes(courseName.trim().toLowerCase()));
-        expect(matchingResult, `Search results do not contain course "${courseName}". Results: ${JSON.stringify(results)}`).toBe(true);
-        logger.info(`Course search assertion passed: "${courseName}" found in search results`);
-    }
+    logger.info(`Verifying valid search result for: ${courseName}`);
+    const matchingCourse = this.courseCards.filter({ hasText: courseName }).first();
+    await expect(matchingCourse,`Course "${courseName}" was not found in search results`).toBeVisible({ timeout: 10000 });
+    logger.info(`Course search assertion passed: "${courseName}" found in search results`);
+}
 
     async verifyInvalidCourseSearch(courseName: string): Promise<void> {
         logger.info(`Verifying invalid search result for: ${courseName}`);
