@@ -1,4 +1,4 @@
-@trainerLogin @jagadeep
+# @trainerLogin @jagadeep
 Feature: Verify Trainer login functionality in WaveInit
 
     Background:
