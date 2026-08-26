@@ -5,10 +5,11 @@ import { AddTrainingPage } from "../../pages/ADMIN/addTrainingPage";
 
 import createTrainingData from "../../../../testdata/trainingData.json";
 import editTrainingData from "../../../../testdata/editTrainingData.json";
-
+import searchTrainingData from "../../../../testdata/searchTrainingData.json";
 import { logger } from "../../utils/logger";
 
 let trainingTitle: string;
+let currentSearchValue: string;
 
 
 // =====================================
@@ -411,6 +412,61 @@ Then(
 
         logger.info(
             `Training "${deletedTrainingTitle}" deleted successfully`
+        );
+    }
+);
+    // =====================================
+// SEARCH TRAINING
+// =====================================
+When(
+    "the admin enters a training title in the search field",
+    async function (this: CustomWorld) {
+
+        currentSearchValue =
+            searchTrainingData.title;
+
+        await this.addTrainingPage
+            .enterSearchValue(
+                currentSearchValue
+            );
+
+        logger.info(
+            `Training title entered in search: ${currentSearchValue}`
+        );
+    }
+);
+
+
+When(
+    "the admin enters a trainer name in the search field",
+    async function (this: CustomWorld) {
+
+        currentSearchValue =
+            searchTrainingData.trainer;
+
+        await this.addTrainingPage
+            .enterSearchValue(
+                currentSearchValue
+            );
+
+        logger.info(
+            `Trainer name entered in search: ${currentSearchValue}`
+        );
+    }
+);
+
+
+Then(
+    "the matching training should be displayed",
+    async function (this: CustomWorld) {
+
+        await this.addTrainingPage
+            .verifySearchResult(
+                currentSearchValue
+            );
+
+        logger.info(
+            `Matching training displayed: ${currentSearchValue}`
         );
     }
 );
