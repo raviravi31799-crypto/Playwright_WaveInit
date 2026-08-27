@@ -7,6 +7,7 @@ import type { RegisterPage } from "../pages/register.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
+import { ParticipantPage } from "../pages/ADMIN/participantPage";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -19,7 +20,7 @@ export class CustomWorld extends World {
     loginPage!: LoginPage;
     addTrainingPage!:AddTrainingPage;
     addTrainerPage!: AddTrainerPage;
-
+    participantPage!: ParticipantPage;
 
     constructor(options: IWorldOptions) {
         super(options);
