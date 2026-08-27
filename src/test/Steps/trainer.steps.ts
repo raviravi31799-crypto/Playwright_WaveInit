@@ -1,76 +1,112 @@
-import { When, Then } from "@cucumber/cucumber";
+import {When,Then} from "@cucumber/cucumber";
 import { CustomWorld } from "../world/world";
-import { HomePage } from "../pages/home.page";
-import { TrainerPage } from "../pages/trainer.page";
 import { logger } from "../utils/logger";
 
 
-
+/**
+ * Click Trainer Role
+ */
 When("the user clicks on trainer in the login menu",async function (this: CustomWorld) {
 
         logger.info("Step: Clicking Trainer in login menu");
-
-        const homePage = new HomePage(this.page);
-
-        await homePage.clickTrainerRole();
+        await this.homePage.clickTrainerRole();
     }
 );
 
-When("the user enters trainer {string} and {string}",async function (this: CustomWorld, username: string, password: string) {
 
-        logger.info(`Step: Entering Trainer credentials`);
+/**
+ * Enter Trainer Credentials
+ *
+ * Email and password are handled by HomePage.
+ */
+When("the user enters trainer {string} and {string}",async function (this: CustomWorld,username: string,password: string) {
+
+        logger.info("Step: Entering Trainer credentials");
 
         logger.info(`Username: ${username || "<empty>"}`);
 
-        logger.info(`Password: ${password ? "********" : "<empty>"}`);
+        logger.info(`Password: ${password? "********": "<empty>"}`);
 
-        const homePage = new HomePage(this.page);
 
         if (username) {
-            await homePage.enterEmail(username);
+
+            await this.homePage.enterEmail(
+                username
+            );
         }
+
 
         if (password) {
-            await homePage.enterPassword(password);
+
+            await this.homePage.enterPassword(
+                password
+            );
         }
     }
 );
 
-When("the user clicks on sign in", async function (this: CustomWorld) {
 
-        logger.info("Step: Clicking Sign In");
+/**
+ * Click Sign In
+ *
+ * Sign In button is handled by HomePage.
+ */
+When(
+    "the user clicks on sign in",
+    async function (
+        this: CustomWorld
+    ) {
 
-        const homePage =new HomePage(this.page);
+        logger.info(
+            "Step: Clicking Sign In"
+        );
 
-        await homePage.clickSignIn();
+        await this.homePage.clickSignIn();
     }
 );
 
-Then("the trainer login result should be {string}", async function (this: CustomWorld, expectedResult: string) {
 
-        logger.info(`Expected Trainer login result: ${expectedResult}`);
+/**
+ * Verify Trainer Login Result
+ *
+ * Trainer-specific validation is handled by TrainerPage.
+ */
+Then(
+    "the trainer login result should be {string}",
+    async function (
+        this: CustomWorld,
+        expectedResult: string
+    ) {
 
-        const trainerPage = new TrainerPage(this.page);
+        logger.info(
+            `Expected Trainer login result: ${expectedResult}`
+        );
 
-        switch (expectedResult.toLowerCase()) {
+
+        switch (
+            expectedResult.toLowerCase()
+        ) {
 
             case "success":
 
-                await trainerPage.verifyTrainerLoginSuccess();
+                await this.trainerPage
+                    .verifyTrainerLoginSuccess();
 
                 break;
 
 
             case "invalid":
 
-                await trainerPage.verifyInvalidCredentials();
+                await this.trainerPage
+                    .verifyInvalidCredentials();
 
                 break;
 
 
             case "required":
 
-                await trainerPage.verifyRequiredFieldValidation();
+                await this.trainerPage
+                    .verifyRequiredFieldValidation();
 
                 break;
 
