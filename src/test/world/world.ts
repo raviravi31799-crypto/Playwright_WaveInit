@@ -4,9 +4,11 @@ import { Browser, BrowserContext, Page } from "@playwright/test";
 import type { BasePage } from "../pages/basepage";
 import type { HomePage } from "../pages/home.page";
 import type { RegisterPage } from "../pages/register.page";
+import type { TrainerPage } from "../pages/trainer.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
+import { ParticipantPage } from "../pages/ADMIN/participantPage";
 
 import type { ParticipantPage } from "../pages/participant.page";
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
@@ -18,6 +20,7 @@ export class CustomWorld extends World {
     basePage!: BasePage;
     homePage!: HomePage;
     registerPage!: RegisterPage;
+    trainerPage!: TrainerPage;
     logger = logger;
     loginPage!: LoginPage;
     addTrainingPage!: AddTrainingPage;
