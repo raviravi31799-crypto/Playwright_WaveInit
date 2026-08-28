@@ -1,3 +1,4 @@
+import { ParticipantsPage } from './../pages/participant.page';
 import { AddTrainingPage } from './../pages/ADMIN/addTrainingPage';
 import { setWorldConstructor, World, IWorldOptions } from "@cucumber/cucumber";
 import { Browser, BrowserContext, Page } from "@playwright/test";
@@ -11,7 +12,7 @@ import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
 import { ParticipantPage } from "../pages/ADMIN/participantPage";
 import { ScheduleInterviewPage } from '../pages/ADMIN/Interviewpage';
 
-import type { ParticipantPage } from "../pages/participant.page";
+
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
 
 export class CustomWorld extends World {
@@ -27,6 +28,7 @@ export class CustomWorld extends World {
     addTrainingPage!: AddTrainingPage;
     addTrainerPage!: AddTrainerPage;
     participantPage!: ParticipantPage;
+    Participantspage!:ParticipantsPage;
     interviewpage!:ScheduleInterviewPage;
     participantProfilePage!: ParticipantProfilePage;
 
