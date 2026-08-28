@@ -10,6 +10,9 @@ import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
 import { ParticipantPage } from "../pages/ADMIN/participantPage";
 
+import type { ParticipantPage } from "../pages/participant.page";
+import type { ParticipantProfilePage } from "../pages/participantProfile.page";
+
 export class CustomWorld extends World {
     browser!: Browser;
     browserContext!: BrowserContext;
@@ -20,9 +23,11 @@ export class CustomWorld extends World {
     trainerPage!: TrainerPage;
     logger = logger;
     loginPage!: LoginPage;
-    addTrainingPage!:AddTrainingPage;
+    addTrainingPage!: AddTrainingPage;
     addTrainerPage!: AddTrainerPage;
     participantPage!: ParticipantPage;
+    participantProfilePage!: ParticipantProfilePage;
+
 
     constructor(options: IWorldOptions) {
         super(options);

@@ -21,6 +21,24 @@ Feature: Verify Participant login functionality in WaveInit
         And the user clicks on sign in as learner
         Then the user should see the login error message "Invalid email or password"
 
-    @negative @empty_fields_csv
-    Scenario: Verify participant login mandatory field validation combinations using csv
-        Then the user validates all participant login combinations from csv "testdata/participant_login_combinations.csv"
+    @negative @empty_fields
+    Scenario Outline: Verify participant login mandatory field validation for empty fields
+        When the user enters participant "<email>" and "<password>"
+        And the user clicks on sign in as learner
+        Then the user should see the required field validation tooltip containing "<validation_message>"
+
+        Examples:
+            | email                 | password   | validation_message           |
+            |                       |            | Please fill out this field.  |
+            |                       | sriram123@ | Please fill out this field.  |
+            | titooram123@gmail.com |            | Please fill out this field.  |
+            | invalid_user          |            | Please fill out this field.  |
+
+    @forgot_password
+    Scenario Outline: Verify participant forgot password navigation and header
+        When the user clicks on forgot password link
+        Then the user should see the forgot password header "<header_title>"
+
+        Examples:
+            | header_title    |
+            | Forgot Password? |

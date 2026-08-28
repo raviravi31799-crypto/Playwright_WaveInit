@@ -19,6 +19,12 @@ When("the user enters invalid participant credentials from json", async function
     await participantPage.enterParticipantCredentials(participantData.invalidUser.email, participantData.invalidUser.password);
 });
 
+When("the user enters invalid participant credentials", async function (this: CustomWorld) {
+    logger.info(`Step: Entering invalid participant credentials (Email: ${participantData.invalidUser.email})`);
+    const participantPage = new ParticipantPage(this.page);
+    await participantPage.enterParticipantCredentials(participantData.invalidUser.email, participantData.invalidUser.password);
+});
+
 When("the user enters valid participant credentials from json", async function (this: CustomWorld) {
     logger.info(`Step: Entering valid participant credentials from json (Email: ${participantData.validUser.email})`);
     const participantPage = new ParticipantPage(this.page);
@@ -78,4 +84,16 @@ Then("the user should see the required field validation tooltip containing {stri
     logger.info(`Step: Validating required field validation tooltip containing: "${expectedSnippet}"`);
     const participantPage = new ParticipantPage(this.page);
     await participantPage.assertRequiredFieldValidation(expectedSnippet);
+});
+
+When("the user clicks on forgot password link", async function (this: CustomWorld) {
+    logger.info("Step: Clicking Forgot password link");
+    const participantPage = new ParticipantPage(this.page);
+    await participantPage.clickForgotPassword();
+});
+
+Then("the user should see the forgot password header {string}", async function (this: CustomWorld, headerTitle: string) {
+    logger.info(`Step: Validating forgot password header: "${headerTitle}"`);
+    const participantPage = new ParticipantPage(this.page);
+    await participantPage.verifyForgotPasswordHeader(headerTitle);
 });
