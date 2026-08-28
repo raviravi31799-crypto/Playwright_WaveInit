@@ -3,7 +3,7 @@ import { BasePage } from "./basepage";
 import { logger } from "../utils/logger";
 import { ParticipantLoginCsvData } from "../utils/csvReader";
 
-export class Participantpage extends BasePage {
+export class ParticipantsPage extends BasePage {
     readonly welcomeTitle: Locator;
     readonly dashboardPage: Locator;
     readonly errorMessage: Locator;
@@ -165,4 +165,4 @@ export class Participantpage extends BasePage {
     }
 }
 
-export default Participantpage;
+export default ParticipantsPage;
