@@ -10,6 +10,7 @@ import { logger } from "../utils/logger";
 import path from "path";
 import fs from "fs";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
+import { ScheduleInterviewPage } from "../pages/ADMIN/Interviewpage";
 
 let browser: Browser;
 
@@ -56,6 +57,7 @@ Before(async function (this: CustomWorld, scenario) {
     this.registerPage = new RegisterPage(this.page);
     this.trainerPage = new TrainerPage(this.page);
     this.loginPage = new LoginPage(this.page);
+    this.interviewpage=new ScheduleInterviewPage(this.page);
 });
 
 After(async function (this: CustomWorld, { pickle, result }) {
