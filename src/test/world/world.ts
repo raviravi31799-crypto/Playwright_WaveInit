@@ -6,6 +6,7 @@ import type { BasePage } from "../pages/basepage";
 import type { HomePage } from "../pages/home.page";
 import type { RegisterPage } from "../pages/register.page";
 import type { TrainerPage } from "../pages/trainer.page";
+import type { TrainerProfilePage } from "../pages/trainerProfile.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
@@ -23,6 +24,7 @@ export class CustomWorld extends World {
     homePage!: HomePage;
     registerPage!: RegisterPage;
     trainerPage!: TrainerPage;
+    trainerProfilePage!: TrainerProfilePage;
     logger = logger;
     loginPage!: LoginPage;
     addTrainingPage!: AddTrainingPage;

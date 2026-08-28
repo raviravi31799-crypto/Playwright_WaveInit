@@ -13,7 +13,7 @@ Feature: Verify Trainer course search and sorting functionality in WaveInit
 
         Examples:
             | courseName       | expectedResult |
-            | React Fundamental| valid          |
+            | react         | valid          |
             | InvalidCourse | invalid        |
 
     @sortNewest
