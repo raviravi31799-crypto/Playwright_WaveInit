@@ -7,12 +7,24 @@ export class ParticipantPage extends BasePage {
     readonly welcomeTitle: Locator;
     readonly dashboardPage: Locator;
     readonly errorMessage: Locator;
+    readonly forgotPasswordLink: Locator;
+    readonly forgotPasswordHeader: Locator;
+    readonly forgotPasswordSubtitle: Locator;
+    readonly forgotEmailInput: Locator;
+    readonly sendVerificationCodeBtn: Locator;
+    readonly backToLoginBtn: Locator;
 
     constructor(page: Page) {
         super(page);
         this.welcomeTitle = page.locator("h1.tdb-header-title");
         this.dashboardPage = page.locator(".tdb-dashboard-page");
         this.errorMessage = page.locator("//div[contains(text(),'Invalid email or password')]");
+        this.forgotPasswordLink = page.locator("button.auth-forgot-link, a.auth-forgot-link, button:has-text('Forgot password?')");
+        this.forgotPasswordHeader = page.locator(".auth-card-header h2.auth-card-title, h2:has-text('Forgot Password?')");
+        this.forgotPasswordSubtitle = page.locator(".auth-card-header p.auth-card-subtitle");
+        this.forgotEmailInput = page.locator("#forgot-email");
+        this.sendVerificationCodeBtn = page.locator("button.auth-submit-btn:has-text('Send Verification Code')");
+        this.backToLoginBtn = page.locator("button:has-text('Back to Login')");
     }
 
     /**
@@ -37,10 +49,32 @@ export class ParticipantPage extends BasePage {
     /**
      * Click sign in button
      */
-    async clickSignIn(): Promise<void> {
-        logger.info("Clicking sign in as learner button");
-        const signInBtn = this.page.locator("button.auth-submit-btn");
-        await this.click(signInBtn, "Sign In Button");
+     async clickSignIn(): Promise<void> {
+         logger.info("Clicking sign in as learner button");
+         const signInBtn = this.page.locator("button.auth-submit-btn");
+         await this.click(signInBtn, "Sign In Button");
+     }
+
+    /**
+     * Click Forgot Password link
+     */
+    async clickForgotPassword(): Promise<void> {
+        logger.info("Clicking Forgot password? link");
+        await this.click(this.forgotPasswordLink, "Forgot Password Link");
+    }
+
+    /**
+     * Verify forgot password header title
+     */
+    async verifyForgotPasswordHeader(expectedTitle: string): Promise<void> {
+        logger.info(`Verifying forgot password header contains: "${expectedTitle}"`);
+        await this.forgotPasswordHeader.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+        const actualText = await this.forgotPasswordHeader.textContent();
+        logger.info(`Actual forgot password header: "${actualText?.trim()}"`);
+        expect(actualText?.trim()).toContain(expectedTitle);
     }
 
     /**
