@@ -1,4 +1,4 @@
-@interview
+@Jothika
 Feature: Schedule an interview -Jothika-27-08-2026
 
 Background:
