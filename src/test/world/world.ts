@@ -11,7 +11,7 @@ import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
 import { ParticipantPage } from "../pages/ADMIN/participantPage";
 import { ScheduleInterviewPage } from '../pages/ADMIN/Interviewpage';
 
-import type { ParticipantPage } from "../pages/participant.page";
+import type { Participantpage } from "../pages/participant.page";
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
 
 export class CustomWorld extends World {
