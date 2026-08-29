@@ -76,6 +76,7 @@ export class TrainerPage extends BasePage {
 
         logger.info("Required field validation passed");
     }
+ 
 }
 
 export default TrainerPage;

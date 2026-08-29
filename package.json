@@ -15,7 +15,7 @@
     "sriram": "cucumber-js --tags @sriram",
     "jagadeep": "cucumber-js --tags @jagadeep",
     "Jothika": "cucumber-js --tags @Jothika",
-    "Harini": "cucumber-js --tags @Harini",
+    "Harini": "cucumber-js --tags @Quiz",
     "Subha": "cucumber-js --tags @Subha",
     "test:smoke": "cucumber-js --tags @smoke",
     "test:regression": "cucumber-js --tags @regression",
