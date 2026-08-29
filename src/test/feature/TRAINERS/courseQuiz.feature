@@ -1,4 +1,4 @@
-@Quiz
+@Harini @Quiz
 Feature: Trainer Quiz Management
 
 Background:
@@ -10,7 +10,7 @@ Background:
     And The trainer selects the first course
     And The trainer opens the "AI Quiz" tab
 
-
+@createQuiz
 Scenario Outline: Verify trainer can create a quiz manually
 
     When The trainer clicks the "Create Manually" button
@@ -23,7 +23,7 @@ Examples:
     | variables |
     | arrays    |
 
-
+@deleteQuiz
 Scenario Outline: Verify trainer can delete a quiz
 
     When The trainer clicks the "Create Manually" button

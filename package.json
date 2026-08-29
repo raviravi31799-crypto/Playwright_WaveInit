@@ -23,12 +23,8 @@
     "upload:photo": "cucumber-js --tags @upload_photo",
     "jagadeep": "cucumber-js --tags @jagadeep",
     "Jothika": "cucumber-js --tags @Jothika",
-<<<<<<< HEAD
-    "Harini": "cucumber-js --tags @Quiz",
-=======
     "interview":"cucumber-js --tags @interview",
     "Harini": "cucumber-js --tags @Harini",
->>>>>>> 13ba0d1dadb2de5caa94cf6863ef29365e8de4b2
     "Subha": "cucumber-js --tags @Subha",
     "test:smoke": "cucumber-js --tags @smoke",
     "test:regression": "cucumber-js --tags @regression",
