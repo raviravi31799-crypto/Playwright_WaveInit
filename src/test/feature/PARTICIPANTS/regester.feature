@@ -51,5 +51,10 @@ Feature: Verify register functionality in WaveInit
         Then the user should see a terms error message "<error message>"
 
         Examples:
-            | first name | last name | email             | number     | password    | confirm password | error message                 |
-            | Sriram     | Titoo     | tit23@gmail.com   | 6381102874 | sriram123@  | sriram123@       | You must agree to the terms   |
+            | first name | last name | email           | number     | password   | confirm password | error message               |
+            | Sriram     | Titoo     | tit23@gmail.com | 6381102874 | sriram123@ | sriram123@       | You must agree to the terms |
+
+    @negative @empty_fields
+    Scenario: Verify validation error when mandatory fields are left empty using excel
+        When the user clicks on sign up as a participant
+        Then the user validates all empty field combinations from excel

@@ -1,6 +1,7 @@
 import { When, Then } from "@cucumber/cucumber";
 import { CustomWorld } from "../world/world";
 import { logger } from "../utils/logger";
+import { readExcel, RegisterExcelData } from "../utils/excelReader";
 
 When("the user clicks on learner in the login menu", async function (this: CustomWorld) {
     logger.info("Step: Clicking Learner tab in login menu");
@@ -109,6 +110,71 @@ When(
     }
 );
 
+When(
+    "the user enters empty field details {string}, {string}, {string}, {string}, {string}, and {string}",
+    async function (
+        this: CustomWorld,
+        firstName: string,
+        lastName: string,
+        email: string,
+        number: string,
+        password: string,
+        confirmPassword: string
+    ) {
+        logger.info(`Step: Entering registration details with empty fields for ${firstName} ${lastName}`);
+        await this.registerPage.enterExactDetails(
+            firstName,
+            lastName,
+            email,
+            number,
+            password,
+            confirmPassword
+        );
+    }
+);
+
+When(
+    "the user enters empty field details from excel",
+    async function (this: CustomWorld) {
+        const filePath = "src/test/data/register_empty_fields.xlsx";
+        const testData = readExcel<RegisterExcelData>(filePath);
+        await this.registerPage.validateAllEmptyFieldCombinations(testData);
+    }
+);
+
+When(
+    "the user enters empty field details from excel file {string}",
+    async function (this: CustomWorld, filePath: string) {
+        const testData = readExcel<RegisterExcelData>(filePath);
+        await this.registerPage.validateAllEmptyFieldCombinations(testData);
+    }
+);
+
+Then(
+    "the user validates all empty field combinations from excel",
+    async function (this: CustomWorld) {
+        const filePath = "src/test/data/register_empty_fields.xlsx";
+        const testData = readExcel<RegisterExcelData>(filePath);
+        await this.registerPage.validateAllEmptyFieldCombinations(testData);
+    }
+);
+
+Then(
+    "the user validates all empty field combinations from excel file {string}",
+    async function (this: CustomWorld, filePath: string) {
+        const testData = readExcel<RegisterExcelData>(filePath);
+        await this.registerPage.validateAllEmptyFieldCombinations(testData);
+    }
+);
+
+When(
+    "the user validates empty fields registration for all records in excel {string}",
+    async function (this: CustomWorld, filePath: string) {
+        const testData = readExcel<RegisterExcelData>(filePath);
+        await this.registerPage.validateAllEmptyFieldCombinations(testData);
+    }
+);
+
 When("the user accepts the terms and conditions", async function (this: CustomWorld) {
     logger.info("Step: Accepting terms and conditions");
     await this.registerPage.acceptTerms();
@@ -143,3 +209,15 @@ Then("the user should see a terms error message {string}", async function (this:
     logger.info(`Step: Validating terms error message: "${errorMessage}"`);
     await this.registerPage.assertTermsError(errorMessage);
 });
+
+Then("the user should see a required field validation error", async function (this: CustomWorld) {
+    logger.info("Step: Validating required field validation error");
+    await this.registerPage.assertRequiredFieldValidation("fill");
+});
+
+Then("the user should see a validation tooltip message containing {string}", async function (this: CustomWorld, expectedMsg: string) {
+    logger.info(`Step: Validating tooltip message containing "${expectedMsg}"`);
+    await this.registerPage.assertRequiredFieldValidation(expectedMsg);
+});
+
+

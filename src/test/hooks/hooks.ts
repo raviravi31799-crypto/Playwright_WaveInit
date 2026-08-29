@@ -4,12 +4,14 @@ import { Before, After, BeforeAll, AfterAll, Status, setDefaultTimeout } from "@
 import { BasePage } from "../pages/basepage";
 import { HomePage } from "../pages/home.page";
 import { RegisterPage } from "../pages/register.page";
+import { TrainerPage } from "../pages/trainer.page";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
 import path from "path";
 import fs from "fs";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { QuizPage } from "../pages/TRAINER/courseQuiz";
+import { ScheduleInterviewPage } from "../pages/ADMIN/Interviewpage";
 
 let browser: Browser;
 
@@ -54,8 +56,10 @@ Before(async function (this: CustomWorld, scenario) {
     this.basePage = new BasePage(this.page);
     this.homePage = new HomePage(this.page);
     this.registerPage = new RegisterPage(this.page);
+    this.trainerPage = new TrainerPage(this.page);
     this.loginPage = new LoginPage(this.page);
     this.quizPage = new QuizPage(this.page);
+    this.interviewpage=new ScheduleInterviewPage(this.page);
 });
 
 After(async function (this: CustomWorld, { pickle, result }) {

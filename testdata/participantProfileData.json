@@ -1,0 +1,80 @@
+{
+  "credentials": {
+    "email": "titooram123@gmail.com",
+    "password": "sriram123@",
+    "role": "Learner",
+    "welcomeMessage": "Welcome back, sriram!"
+  },
+  "pageHeader": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and view learning activity",
+    "backToDashboardButtonText": "Back to Dashboard",
+    "editProfileButtonText": "Edit Profile"
+  },
+  "topBanner": {
+    "name": "sriram",
+    "role": "PARTICIPANT",
+    "joinedDate": "Joined Aug 2026",
+    "email": "titooram123@gmail.com",
+    "phone": "+91 98765 43210",
+    "participantId": "PAR-1048",
+    "department": "Engineering",
+    "designation": "Senior Software Engineer",
+    "enrolledTrainings": "31 Programs",
+    "accountStatus": "Active",
+    "avatarInitials": "SR"
+  },
+  "personalInfo": {
+    "fullName": "sriram",
+    "email": "titooram123@gmail.com",
+    "emailNote": "titooram123@gmail.com (Cannot be changed)",
+    "phone": "+91 98765 43210",
+    "participantId": "PAR-1048",
+    "department": "Engineering",
+    "designation": "Senior Software Engineer",
+    "accountStatus": "Active"
+  },
+  "activitySummary": {
+    "timeframe": "Last 90 Days",
+    "daysActive": "5",
+    "coursesAccessed": "31",
+    "lessonsCompleted": "1",
+    "assessmentsTaken": "4",
+    "timeSpentLearning": "6h 49m"
+  },
+  "heatmap": {
+    "title": "Learning Activity Heatmap",
+    "defaultTimeframe": "Last 90 Days",
+    "options": [
+      "Last 90 Days",
+      "Last 30 Days",
+      "Last 180 Days",
+      "Last Year"
+    ],
+    "legends": [
+      "No Activity",
+      "Low Activity",
+      "Medium Activity",
+      "High Activity"
+    ]
+  },
+  "profileCompletion": {
+    "percentage": "63%",
+    "sections": "5/8 Sections Complete",
+    "hint": "Add more details to reach 100%"
+  },
+  "uploadAssets": {
+    "profilePhotoFileName": "1T2A9487.jpg.jpeg",
+    "profilePhotoPath": "testdata/1T2A9487.jpg.jpeg",
+    "resumeFileName": "resume.pdf"
+  },
+  "professionalInfo": {
+    "company": "Wave Init Solutions",
+    "department": "Engineering",
+    "designation": "Senior Software Engineer",
+    "headline": "Senior Software Engineer | React & Node.js Expert",
+    "location": "Chennai, India",
+    "timeZone": "Asia/Kolkata (IST)",
+    "language": "English"
+  }
+}

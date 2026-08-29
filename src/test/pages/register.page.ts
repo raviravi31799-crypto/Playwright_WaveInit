@@ -2,6 +2,7 @@ import { Locator, Page, expect } from "@playwright/test";
 import { BasePage } from "./basepage";
 import { ENV } from "../utils/envReader";
 import { logger } from "../utils/logger";
+import { RegisterExcelData } from "../utils/excelReader";
 
 export class RegisterPage extends BasePage {
     // Registration Form Inputs
@@ -230,6 +231,90 @@ export class RegisterPage extends BasePage {
         expect(actualText.toLowerCase()).toContain(expectedMessage.toLowerCase());
         logger.info("Terms error assertion passed!");
     }
+
+    /**
+     * Assert required field validation message (e.g. "Please fill out this field." or "Please fill in this field.")
+     * on the first invalid field and ensures form submission is blocked.
+     */
+    async assertRequiredFieldValidation(expectedMessageSnippet: string = "fill"): Promise<string> {
+        logger.info(`Asserting required field validation message containing: "${expectedMessageSnippet}"`);
+        await expect(this.submitBtn).toBeVisible();
+
+        const inputFields: { name: string; locator: Locator }[] = [
+            { name: "Full Name", locator: this.fullNameInput },
+            { name: "First Name", locator: this.firstNameInput },
+            { name: "Last Name", locator: this.lastNameInput },
+            { name: "Email Address", locator: this.emailInput },
+            { name: "Phone Number", locator: this.phoneNumberInput },
+            { name: "Password", locator: this.passwordInput },
+            { name: "Confirm Password", locator: this.confirmPasswordInput }
+        ];
+
+        let invalidFieldName = "";
+        let actualValidationMsg = "";
+
+        for (const field of inputFields) {
+            if (await field.locator.isVisible()) {
+                const isValid = await field.locator.evaluate((el: HTMLInputElement) => el.checkValidity()).catch(() => true);
+                if (!isValid) {
+                    invalidFieldName = field.name;
+                    actualValidationMsg = await field.locator.evaluate((el: HTMLInputElement) => el.validationMessage).catch(() => "");
+                    break;
+                }
+            }
+        }
+
+        logger.info(`Detected invalid field: "${invalidFieldName}" with validation message: "${actualValidationMsg}"`);
+
+        // Assert that an invalid field was detected
+        expect(invalidFieldName, "Expected at least one field to fail validation, but all fields were valid!").not.toBe("");
+
+        // Assert that the validation message contains the expected snippet (e.g. 'Please fill out this field' or 'fill')
+        expect(actualValidationMsg.toLowerCase()).toContain(expectedMessageSnippet.toLowerCase());
+
+        logger.info(`Validation Assertion Passed: "${actualValidationMsg}" verified on "${invalidFieldName}"!`);
+        return actualValidationMsg;
+    }
+
+    /**
+     * Run validation across all test combinations loaded from an Excel file
+     */
+    async validateAllEmptyFieldCombinations(testData: RegisterExcelData[]): Promise<void> {
+        logger.info(`Starting batch execution of ${testData.length} empty field combinations from Excel`);
+        let passedCount = 0;
+
+        for (let i = 0; i < testData.length; i++) {
+            const row = testData[i];
+            const tcId = row.testCaseId || `ROW_${i + 1}`;
+            const desc = row.description || "Empty field validation";
+
+            logger.info(`----------------------------------------------------------------------`);
+            logger.info(`[${i + 1}/${testData.length}] Testing Combination: ${tcId} - "${desc}"`);
+
+            await this.enterExactDetails(
+                String(row.firstName || ""),
+                String(row.lastName || ""),
+                String(row.email || ""),
+                String(row.number || ""),
+                String(row.password || ""),
+                String(row.confirmPassword || "")
+            );
+
+            await this.acceptTerms();
+            await this.submitForm();
+
+            // Assert that the required field shows the 'Please fill...' validation message
+            const capturedMsg = await this.assertRequiredFieldValidation("fill");
+
+            passedCount++;
+            logger.info(`--> [PASS] ${tcId} validated successfully with message: "${capturedMsg}"`);
+        }
+
+        logger.info(`======================================================================`);
+        logger.info(`SUMMARY: All ${passedCount}/${testData.length} Excel combinations passed 'Please fill...' message assertion!`);
+    }
 }
 
 export default RegisterPage;
+
+

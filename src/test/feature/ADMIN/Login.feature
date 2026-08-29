@@ -16,7 +16,7 @@ And clicks on signin as admin
 Then the user receives an "<errormessage>"
 
 Examples:
-|email            |password   |errormessage             |
+|email            |password   |errormessage              |
 |admin@gmail.com  |admin123   |Invalid email or password |
 |admin@test.com   |admin      |Invalid email or password |
 |admin@gmail.com  |admin      |Invalid email or password |
@@ -28,7 +28,7 @@ And clicks on signin as admin
 Then the user should receive an "<alertmessage>"
 
 Examples:
-|email           |passsword   |alertmessage               |
+|email           |password    |alertmessage                |
 |                |admin123    |Please fill out this field. |
 |admin@test.com  |            |Please fill out this field. |
 |                |            |Please fill out this field. |
