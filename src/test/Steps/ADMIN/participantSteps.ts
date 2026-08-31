@@ -97,3 +97,49 @@ Then("the participant should be deleted successfully", async function (this: Cus
     await this.participantPage.verifyParticipantRemoved(currentFullName);
     logger.info(`Participant "${currentFullName}" deleted successfully`);
 });
+
+// ---- Search & Filter ----
+
+When("the admin searches for the participant {string}", async function (this: CustomWorld, searchTerm: string) {
+    await this.participantPage.searchParticipant(searchTerm);
+    logger.info(`Searched for participant term: "${searchTerm}"`);
+});
+
+Then("the searched participant {string} should be displayed", async function (this: CustomWorld, fullName: string) {
+    await this.participantPage.verifySearchedParticipantDisplayed(fullName);
+});
+
+Then("the participant with email {string} should be displayed", async function (this: CustomWorld, email: string) {
+    await this.participantPage.verifyParticipantWithEmailDisplayed(email);
+});
+
+Then("no matching participant should be displayed", async function (this: CustomWorld) {
+    await this.participantPage.verifyNoMatchingParticipant();
+});
+
+When("the admin clicks the Approved filter", async function (this: CustomWorld) {
+    await this.participantPage.clickApprovedFilter();
+    logger.info("Approved filter clicked");
+});
+
+When("the admin clicks the Pending filter", async function (this: CustomWorld) {
+    await this.participantPage.clickPendingFilter();
+    logger.info("Pending filter clicked");
+});
+
+When("the admin clicks the Rejected filter", async function (this: CustomWorld) {
+    await this.participantPage.clickRejectedFilter();
+    logger.info("Rejected filter clicked");
+});
+
+Then("only approved participants should be displayed", async function (this: CustomWorld) {
+    await this.participantPage.verifyAllRowsHaveStatus("Approved");
+});
+
+Then("only pending participants should be displayed", async function (this: CustomWorld) {
+    await this.participantPage.verifyAllRowsHaveStatus("Pending");
+});
+
+Then("only rejected participants should be displayed", async function (this: CustomWorld) {
+    await this.participantPage.verifyAllRowsHaveStatus("Rejected");
+});

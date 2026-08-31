@@ -69,3 +69,42 @@ Scenario Outline: Verify admin can delete a participant
     Examples:
         | fullName    | email              | phone      | status            | password  |
         | DeleteTest  | delete.test@x.com  | 9876543215 | Pending Approval  | Pass@123  |
+
+@SearchParticipant
+Scenario Outline: Verify admin can search participant by name
+    When the admin searches for the participant "<fullName>"
+    Then the searched participant "<fullName>" should be displayed
+
+    Examples:
+        | fullName     |
+        | RaviApproved |
+        | ApproveTest  |
+
+@SearchParticipantByEmail
+Scenario Outline: Verify admin can search participant by email
+    When the admin searches for the participant "<email>"
+    Then the participant with email "<email>" should be displayed
+
+    Examples:
+        | email                |
+        | ravi.approved@x.com  |
+
+@SearchInvalidParticipant
+Scenario: Verify no participant is displayed for an invalid search
+    When the admin searches for the participant "NonExistingParticipant"
+    Then no matching participant should be displayed
+
+@FilterApproved
+Scenario: Verify admin can filter participants by Approved status
+    When the admin clicks the Approved filter
+    Then only approved participants should be displayed
+
+@FilterPending
+Scenario: Verify admin can filter participants by Pending status
+    When the admin clicks the Pending filter
+    Then only pending participants should be displayed
+
+@FilterRejected
+Scenario: Verify admin can filter participants by Rejected status
+    When the admin clicks the Rejected filter
+    Then only rejected participants should be displayed

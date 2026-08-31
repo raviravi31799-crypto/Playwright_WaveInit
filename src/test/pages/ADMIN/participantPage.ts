@@ -24,6 +24,22 @@ export class ParticipantPage extends BasePage {
     readonly deleteConfirmModal: Locator;
     readonly confirmDeleteBtn: Locator;
 
+    // Status filter tabs/buttons on the Participants list page
+    // NOTE: exact accessible name/role assumed to match the existing button
+    // pattern used elsewhere on this page (e.g. addParticipantBtn). Verify
+    // against the live DOM and adjust if these use a different role (e.g.
+    // "tab") or label (e.g. "Approved (Active)").
+    readonly approvedFilterBtn: Locator;
+    readonly pendingFilterBtn: Locator;
+    readonly rejectedFilterBtn: Locator;
+
+    // Data rows in the participants table body, used for search/filter checks
+    readonly tableRows: Locator;
+
+    // Empty-state message shown when a search/filter yields no results.
+    // NOTE: exact wording assumed - adjust to match the app's actual copy.
+    readonly noResultsMessage: Locator;
+
     constructor(page: Page) {
         super(page);
 
@@ -71,6 +87,18 @@ export class ParticipantPage extends BasePage {
         this.confirmDeleteBtn = this.deleteConfirmModal.getByRole(
             "button",
             { name: "Confirm", exact: true }
+        );
+
+        // Status filter tabs
+        this.approvedFilterBtn = page.getByRole("button", { name: "Approved", exact: true });
+        this.pendingFilterBtn = page.getByRole("button", { name: "Pending", exact: true });
+        this.rejectedFilterBtn = page.getByRole("button", { name: "Rejected", exact: true });
+
+        // Participants table body rows
+        this.tableRows = page.locator("table tbody tr");
+
+        this.noResultsMessage = page.getByText(
+            /no participants found|no results found|no matching participants/i
         );
     }
 
@@ -170,6 +198,16 @@ export class ParticipantPage extends BasePage {
             .filter({ has: this.page.getByText(name, { exact: true }) });
     }
 
+    /**
+     * Locate table row(s) whose text contains the given substring.
+     * Used for search-by-name/email checks, since the value entered in the
+     * search box may only be part of a longer generated name/email
+     * (e.g. a uniqueness suffix appended when the participant was created).
+     */
+    getParticipantRowContains(text: string): Locator {
+        return this.page.locator("tr").filter({ hasText: text });
+    }
+
     async clickApprove(name: string): Promise<void> {
         const row = this.getParticipantRow(name);
         await this.click(
@@ -237,6 +275,90 @@ export class ParticipantPage extends BasePage {
      await expect(this.getParticipantRow(name)).toHaveCount(0, { timeout: 10000 });
      logger.info(`Participant "${name}" confirmed removed`);
   }
+
+    /**
+     * Click a status filter tab/button ("Approved", "Pending", "Rejected")
+     * on the Participants list page.
+     */
+    async clickStatusFilter(status: "Approved" | "Pending" | "Rejected"): Promise<void> {
+        const filterBtn =
+            status === "Approved" ? this.approvedFilterBtn :
+            status === "Pending" ? this.pendingFilterBtn :
+            this.rejectedFilterBtn;
+
+        await this.click(filterBtn, `${status} Filter`);
+        // give the list a moment to re-filter
+        await this.page.waitForTimeout(500);
+    }
+
+    async clickApprovedFilter(): Promise<void> {
+        await this.clickStatusFilter("Approved");
+    }
+
+    async clickPendingFilter(): Promise<void> {
+        await this.clickStatusFilter("Pending");
+    }
+
+    async clickRejectedFilter(): Promise<void> {
+        await this.clickStatusFilter("Rejected");
+    }
+
+    /**
+     * Verify that a searched participant (by name) appears in the list.
+     * Matches on substring since the actual stored name may include a
+     * uniqueness suffix appended at creation time.
+     */
+    async verifySearchedParticipantDisplayed(name: string): Promise<void> {
+        logger.info(`Verifying participant matching "${name}" is displayed in search results`);
+        await expect(this.getParticipantRowContains(name).first()).toBeVisible({ timeout: 10000 });
+        logger.info(`Participant matching "${name}" is displayed`);
+    }
+
+    /**
+     * Verify that a searched participant (by email) appears in the list.
+     */
+    async verifyParticipantWithEmailDisplayed(email: string): Promise<void> {
+        logger.info(`Verifying participant with email matching "${email}" is displayed`);
+        await expect(this.getParticipantRowContains(email).first()).toBeVisible({ timeout: 10000 });
+        logger.info(`Participant with email matching "${email}" is displayed`);
+    }
+
+    /**
+     * Verify that no participant rows are displayed for an invalid/no-match
+     * search. Handles either an empty table or an explicit "no results"
+     * message, depending on how the app renders an empty state.
+     */
+    async verifyNoMatchingParticipant(): Promise<void> {
+        logger.info("Verifying no matching participant is displayed");
+        await this.page.waitForTimeout(500);
+
+        const rowCount = await this.tableRows.count();
+        if (rowCount === 0) {
+            logger.info("No rows present in the table - confirmed no matching participant");
+            return;
+        }
+
+        await expect(this.noResultsMessage).toBeVisible({ timeout: 10000 });
+        logger.info("Empty-state message confirmed for no matching participant");
+    }
+
+    /**
+     * Verify every visible row in the participants table reflects the
+     * given status (used after clicking a status filter tab).
+     */
+    async verifyAllRowsHaveStatus(status: "Approved" | "Pending" | "Rejected"): Promise<void> {
+        logger.info(`Verifying all visible rows have status: ${status}`);
+        await this.page.waitForTimeout(500);
+
+        const count = await this.tableRows.count();
+        expect(count, `Expected at least one "${status}" participant row`).toBeGreaterThan(0);
+
+        for (let i = 0; i < count; i++) {
+            await expect(this.tableRows.nth(i)).toContainText(new RegExp(status, "i"));
+        }
+
+        logger.info(`All ${count} visible row(s) confirmed as "${status}"`);
+    }
 }
 
 export default ParticipantPage;
