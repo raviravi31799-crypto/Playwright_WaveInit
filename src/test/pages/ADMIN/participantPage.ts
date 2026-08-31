@@ -38,19 +38,25 @@ export class ParticipantPage extends BasePage {
     constructor(page: Page) {
         super(page);
 
+        // -----------------------------
         // Sidebar navigation
+        // -----------------------------
         this.participantsMenu = page.getByRole(
             "button",
             { name: "Participants", exact: true }
         );
 
+        // -----------------------------
         // Add Participant button
+        // -----------------------------
         this.addParticipantBtn = page.getByRole(
             "button",
             { name: "Add Participant" }
         );
 
+        // -----------------------------
         // Add New Participant modal
+        // -----------------------------
         this.modal = page.locator("div.reg-modal");
 
         this.fullNameInput = this.modal.getByPlaceholder(
@@ -83,22 +89,29 @@ export class ParticipantPage extends BasePage {
             { name: "Add Participant" }
         );
 
-        // Participants list page
+        // -----------------------------
+        // Search
+        // -----------------------------
         this.searchInput = page.getByPlaceholder(
             "Search participants..."
         );
 
+        // -----------------------------
         // Delete confirmation modal
+        // -----------------------------
         this.deleteConfirmModal = page.locator(
             "div.reg-modal.reg-modal--small"
         );
 
-        this.confirmDeleteBtn = this.deleteConfirmModal.getByRole(
-            "button",
-            { name: "Confirm", exact: true }
-        );
+        this.confirmDeleteBtn =
+            this.deleteConfirmModal.getByRole(
+                "button",
+                { name: "Confirm", exact: true }
+            );
 
-        // Status filter buttons
+        // -----------------------------
+        // Status filters
+        // -----------------------------
         this.approvedFilterBtn = page.getByRole(
             "button",
             { name: "Approved", exact: true }
@@ -114,41 +127,77 @@ export class ParticipantPage extends BasePage {
             { name: "Rejected", exact: true }
         );
 
-        // Participants table rows
+        // -----------------------------
+        // Participants table
+        // -----------------------------
         this.tableRows = page.locator(
             "table tbody tr"
         );
 
-        // Empty-state message
+        // -----------------------------
+        // Empty state
+        // -----------------------------
         this.noResultsMessage = page.getByText(
             /no participants found|no results found|no matching participants/i
         );
     }
 
-    /**
-     * Click on "Participants" in the sidebar navigation
-     */
+    // =========================================================
+    // PARTICIPANTS NAVIGATION
+    // =========================================================
+
     async clickParticipantsMenu(): Promise<void> {
+
+        logger.info(
+            "Clicking Participants sidebar"
+        );
+
         await this.click(
             this.participantsMenu,
             "Participants Sidebar Link"
         );
+
+        await expect(
+            this.addParticipantBtn
+        ).toBeVisible({
+            timeout: 10000
+        });
+
+        logger.info(
+            "Participants page opened successfully"
+        );
     }
 
-    /**
-     * Click on "Add Participant" button
-     */
+    // =========================================================
+    // ADD PARTICIPANT
+    // =========================================================
+
     async clickAddParticipant(): Promise<void> {
+
+        logger.info(
+            "Clicking Add Participant button"
+        );
+
         await this.click(
             this.addParticipantBtn,
             "Add Participant Button"
         );
+
+        await expect(
+            this.modal
+        ).toBeVisible({
+            timeout: 10000
+        });
+
+        logger.info(
+            "Add Participant modal opened"
+        );
     }
 
-    /**
-     * Enter participant full name
-     */
-    async enterFullName(fullName: string): Promise<void> {
+    async enterFullName(
+        fullName: string
+    ): Promise<void> {
+
         await this.sendKeys(
             this.fullNameInput,
             fullName,
@@ -156,10 +205,10 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    /**
-     * Enter participant email
-     */
-    async enterEmail(email: string): Promise<void> {
+    async enterEmail(
+        email: string
+    ): Promise<void> {
+
         await this.sendKeys(
             this.emailInput,
             email,
@@ -167,10 +216,10 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    /**
-     * Enter participant phone number
-     */
-    async enterPhone(phone: string): Promise<void> {
+    async enterPhone(
+        phone: string
+    ): Promise<void> {
+
         await this.sendKeys(
             this.phoneInput,
             phone,
@@ -178,11 +227,13 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    /**
-     * Select account status
-     */
-    async selectAccountStatus(status: string): Promise<void> {
-        logger.info(`Selecting "${status}" from Account Status`);
+    async selectAccountStatus(
+        status: string
+    ): Promise<void> {
+
+        logger.info(
+            `Selecting account status: "${status}"`
+        );
 
         await this.accountStatusSelect.waitFor({
             state: "visible",
@@ -192,12 +243,16 @@ export class ParticipantPage extends BasePage {
         await this.accountStatusSelect.selectOption({
             label: status
         });
+
+        logger.info(
+            `Account status "${status}" selected`
+        );
     }
 
-    /**
-     * Enter participant password
-     */
-    async enterPassword(password: string): Promise<void> {
+    async enterPassword(
+        password: string
+    ): Promise<void> {
+
         await this.sendKeys(
             this.passwordInput,
             password,
@@ -205,9 +260,6 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    /**
-     * Fill participant details
-     */
     async fillParticipantDetails(data: {
         fullName: string;
         email: string;
@@ -216,62 +268,82 @@ export class ParticipantPage extends BasePage {
         password: string;
     }): Promise<void> {
 
+        logger.info(
+            `Filling participant details for "${data.fullName}"`
+        );
+
         await this.enterFullName(data.fullName);
         await this.enterEmail(data.email);
         await this.enterPhone(data.phone);
         await this.selectAccountStatus(data.status);
         await this.enterPassword(data.password);
+
+        logger.info(
+            "Participant details filled successfully"
+        );
     }
 
-    /**
-     * Submit Add Participant form
-     */
     async clickSubmit(): Promise<void> {
+
+        logger.info(
+            "Submitting Add Participant form"
+        );
+
         await this.click(
             this.submitBtn,
             "Add Participant (submit) Button"
         );
     }
 
-    /**
-     * Click Cancel on Add Participant form
-     */
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
     async clickCancel(): Promise<void> {
+
+        logger.info(
+            "Clicking Cancel button"
+        );
+
         await this.click(
             this.cancelBtn,
             "Cancel Button"
         );
     }
 
-    /**
-     * Verify Add Participant form is closed
-     */
     async verifyFormClosed(): Promise<void> {
 
         logger.info(
-            "Verifying Add New Participant form is closed"
+            "Verifying Add Participant form is closed"
         );
 
-        await expect(this.modal).toBeHidden({
+        await expect(
+            this.modal
+        ).toBeHidden({
             timeout: 10000
         });
 
-        await expect(this.addParticipantBtn).toBeVisible({
+        await expect(
+            this.addParticipantBtn
+        ).toBeVisible({
             timeout: 10000
         });
 
         logger.info(
-            "Add New Participant form closed successfully"
+            "Add Participant form closed successfully"
         );
     }
 
-    /**
-     * Search for a participant by name/email
-     */
-    async searchParticipant(searchText: string): Promise<void> {
+    // =========================================================
+    // SEARCH
+    // =========================================================
+
+    async searchParticipant(
+        searchText: string
+    ): Promise<void> {
 
         logger.info(
-            `Searching participant using: "${searchText}"`
+            `Searching participant: "${searchText}"`
         );
 
         await this.searchInput.waitFor({
@@ -281,10 +353,17 @@ export class ParticipantPage extends BasePage {
 
         await this.searchInput.fill(searchText);
 
-        // Wait until the search result updates.
-        // This does not use a fixed timeout.
-        await this.page.waitForLoadState("networkidle").catch(() => {
-            // Ignore if network remains active because of polling/background requests
+        /*
+         * Wait until the search result changes.
+         * No fixed waitForTimeout is used.
+         */
+        await this.page.waitForLoadState(
+            "networkidle"
+        ).catch(() => {
+            /*
+             * Ignore networkidle timeout because
+             * applications may have background requests.
+             */
         });
 
         logger.info(
@@ -292,24 +371,29 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    /**
-     * Locate participant row by exact name
-     */
-    getParticipantRow(name: string): Locator {
+    // =========================================================
+    // PARTICIPANT ROW
+    // =========================================================
+
+    getParticipantRow(
+        name: string
+    ): Locator {
+
         return this.page
             .locator("table tbody tr")
             .filter({
-                has: this.page.getByText(name, {
-                    exact: true
-                })
+                has: this.page.getByText(
+                    name,
+                    { exact: true }
+                )
             })
             .first();
     }
 
-    /**
-     * Locate participant row containing text
-     */
-    getParticipantRowContains(text: string): Locator {
+    getParticipantRowContains(
+        text: string
+    ): Locator {
+
         return this.page
             .locator("table tbody tr")
             .filter({
@@ -317,73 +401,123 @@ export class ParticipantPage extends BasePage {
             });
     }
 
-    /**
-     * Approve participant
-     */
-    async clickApprove(name: string): Promise<void> {
+    // =========================================================
+    // APPROVE
+    // =========================================================
 
-        const row = this.getParticipantRow(name);
+    async clickApprove(
+        name: string
+    ): Promise<void> {
 
-        await expect(row).toBeVisible({
+        logger.info(
+            `Locating participant for approval: "${name}"`
+        );
+
+        const row =
+            this.getParticipantRow(name);
+
+        await expect(
+            row
+        ).toBeVisible({
             timeout: 10000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                { name: "Approve participant" }
+                {
+                    name: "Approve participant"
+                }
             ),
             `Approve Participant (${name})`
         );
+
+        logger.info(
+            `Approve clicked for "${name}"`
+        );
     }
 
-    /**
-     * Reject participant
-     */
-    async clickReject(name: string): Promise<void> {
+    // =========================================================
+    // REJECT
+    // =========================================================
 
-        const row = this.getParticipantRow(name);
+    async clickReject(
+        name: string
+    ): Promise<void> {
 
-        await expect(row).toBeVisible({
+        logger.info(
+            `Locating participant for rejection: "${name}"`
+        );
+
+        const row =
+            this.getParticipantRow(name);
+
+        await expect(
+            row
+        ).toBeVisible({
             timeout: 10000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                { name: "Reject participant" }
+                {
+                    name: "Reject participant"
+                }
             ),
             `Reject Participant (${name})`
         );
+
+        logger.info(
+            `Reject clicked for "${name}"`
+        );
     }
 
-    /**
-     * Delete participant
-     */
-    async clickDelete(name: string): Promise<void> {
+    // =========================================================
+    // DELETE
+    // =========================================================
 
-        const row = this.getParticipantRow(name);
+    async clickDelete(
+        name: string
+    ): Promise<void> {
 
-        await expect(row).toBeVisible({
+        logger.info(
+            `Locating participant for deletion: "${name}"`
+        );
+
+        const row =
+            this.getParticipantRow(name);
+
+        await expect(
+            row
+        ).toBeVisible({
             timeout: 10000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                { name: "Delete participant" }
+                {
+                    name: "Delete participant"
+                }
             ),
             `Delete Participant (${name})`
         );
+
+        logger.info(
+            `Delete clicked for "${name}"`
+        );
     }
 
-    /**
-     * Confirm participant deletion
-     */
     async confirmDelete(): Promise<void> {
 
-        await this.deleteConfirmModal.waitFor({
-            state: "visible",
+        logger.info(
+            "Waiting for delete confirmation modal"
+        );
+
+        await expect(
+            this.deleteConfirmModal
+        ).toBeVisible({
             timeout: 10000
         });
 
@@ -391,67 +525,89 @@ export class ParticipantPage extends BasePage {
             this.confirmDeleteBtn,
             "Confirm Delete Button"
         );
+
+        logger.info(
+            "Delete confirmed"
+        );
     }
 
-    /**
-     * Verify toast message
-     */
+    // =========================================================
+    // TOAST
+    // =========================================================
+
     async verifyToastContains(
         expectedText: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying toast message contains: "${expectedText}"`
+            `Verifying toast contains: "${expectedText}"`
         );
 
-        const escaped = expectedText.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&"
-        );
+        const escaped =
+            expectedText.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+            );
 
-        const toastLocator = this.page
-            .getByText(new RegExp(escaped, "i"))
-            .last();
+        const toastLocator =
+            this.page
+                .getByText(
+                    new RegExp(
+                        escaped,
+                        "i"
+                    )
+                )
+                .last();
 
         await toastLocator.waitFor({
             state: "visible",
             timeout: 10000
         });
 
-        await expect(toastLocator).toBeVisible();
+        await expect(
+            toastLocator
+        ).toBeVisible();
 
         logger.info(
             "Toast message verified successfully"
         );
     }
 
-    /**
-     * Verify participant is removed
-     */
+    // =========================================================
+    // DELETE VERIFICATION
+    // =========================================================
+
     async verifyParticipantRemoved(
         name: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying participant "${name}" is removed from the list`
+            `Verifying participant "${name}" is removed`
         );
 
         await expect(
             this.getParticipantRow(name)
-        ).toHaveCount(0, {
-            timeout: 10000
-        });
+        ).toHaveCount(
+            0,
+            {
+                timeout: 10000
+            }
+        );
 
         logger.info(
-            `Participant "${name}" confirmed removed`
+            `Participant "${name}" removed successfully`
         );
     }
 
-    /**
-     * Click status filter
-     */
+    // =========================================================
+    // STATUS FILTER
+    // =========================================================
+
     async clickStatusFilter(
-        status: "Approved" | "Pending" | "Rejected"
+        status:
+            | "Approved"
+            | "Pending"
+            | "Rejected"
     ): Promise<void> {
 
         const filterBtn =
@@ -462,172 +618,193 @@ export class ParticipantPage extends BasePage {
                     : this.rejectedFilterBtn;
 
         logger.info(
-            `Clicking "${status}" status filter`
+            `Clicking "${status}" filter`
         );
 
-        await filterBtn.waitFor({
-            state: "visible",
+        await expect(
+            filterBtn
+        ).toBeVisible({
             timeout: 10000
         });
 
-        await this.click(
-            filterBtn,
-            `${status} Filter`
+        await filterBtn.click();
+
+        logger.info(
+            `"${status}" filter clicked`
         );
 
         /*
-         * Important:
-         * Do not use waitForTimeout(500).
+         * Do not use:
          *
-         * Wait until the table actually contains the
-         * expected status. This prevents Jenkins timing
-         * issues where the old table data is still visible.
+         * await page.waitForTimeout(500)
+         *
+         * Instead, wait until the table contains
+         * the expected status.
          */
-        await expect
-            .poll(
-                async () => {
-                    const count = await this.tableRows.count();
+        await expect.poll(
+            async () => {
 
-                    if (count === 0) {
-                        return false;
-                    }
+                const count =
+                    await this.tableRows.count();
 
-                    for (let i = 0; i < count; i++) {
-                        const text = await this.tableRows
+                if (count === 0) {
+                    return false;
+                }
+
+                for (
+                    let i = 0;
+                    i < count;
+                    i++
+                ) {
+
+                    const rowText =
+                        await this.tableRows
                             .nth(i)
                             .innerText();
 
-                        if (
-                            !new RegExp(
-                                `\\b${status}\\b`,
-                                "i"
-                            ).test(text)
-                        ) {
-                            return false;
-                        }
-                    }
+                    const statusFound =
+                        new RegExp(
+                            `\\b${status}\\b`,
+                            "i"
+                        ).test(rowText);
 
-                    return true;
-                },
-                {
-                    timeout: 10000,
-                    message:
-                        `Table did not update to "${status}" status`
+                    if (!statusFound) {
+                        return false;
+                    }
                 }
-            )
-            .toBe(true);
+
+                return true;
+
+            },
+            {
+                timeout: 10000,
+
+                message:
+                    `Table did not update to "${status}" after clicking the filter`
+            }
+        ).toBe(true);
 
         logger.info(
             `"${status}" filter applied successfully`
         );
     }
 
-    /**
-     * Click Approved filter
-     */
     async clickApprovedFilter(): Promise<void> {
-        await this.clickStatusFilter("Approved");
+
+        await this.clickStatusFilter(
+            "Approved"
+        );
     }
 
-    /**
-     * Click Pending filter
-     */
     async clickPendingFilter(): Promise<void> {
-        await this.clickStatusFilter("Pending");
+
+        await this.clickStatusFilter(
+            "Pending"
+        );
     }
 
-    /**
-     * Click Rejected filter
-     */
     async clickRejectedFilter(): Promise<void> {
-        await this.clickStatusFilter("Rejected");
+
+        await this.clickStatusFilter(
+            "Rejected"
+        );
     }
 
-    /**
-     * Verify searched participant by name
-     */
+    // =========================================================
+    // SEARCH RESULT VERIFICATION
+    // =========================================================
+
     async verifySearchedParticipantDisplayed(
         name: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying participant matching "${name}" is displayed`
+            `Verifying searched participant: "${name}"`
         );
 
         const row =
-            this.getParticipantRowContains(name).first();
+            this.getParticipantRowContains(name)
+                .first();
 
-        await expect(row).toBeVisible({
+        await expect(
+            row
+        ).toBeVisible({
             timeout: 10000
         });
 
         logger.info(
-            `Participant matching "${name}" is displayed`
+            `Participant "${name}" displayed successfully`
         );
     }
 
-    /**
-     * Verify searched participant by email
-     */
     async verifyParticipantWithEmailDisplayed(
         email: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying participant with email matching "${email}" is displayed`
+            `Verifying participant with email: "${email}"`
         );
 
         const row =
-            this.getParticipantRowContains(email).first();
+            this.getParticipantRowContains(email)
+                .first();
 
-        await expect(row).toBeVisible({
+        await expect(
+            row
+        ).toBeVisible({
             timeout: 10000
         });
 
         logger.info(
-            `Participant with email "${email}" is displayed`
+            `Participant with email "${email}" displayed successfully`
         );
     }
 
-    /**
-     * Verify no matching participant
-     */
+    // =========================================================
+    // INVALID SEARCH
+    // =========================================================
+
     async verifyNoMatchingParticipant(): Promise<void> {
 
         logger.info(
             "Verifying no matching participant is displayed"
         );
 
-        await expect
-            .poll(
-                async () => {
-                    const rowCount =
-                        await this.tableRows.count();
+        await expect.poll(
+            async () => {
 
-                    if (rowCount === 0) {
-                        return true;
-                    }
+                const rowCount =
+                    await this.tableRows.count();
 
-                    return await this.noResultsMessage.isVisible();
-                },
-                {
-                    timeout: 10000,
-                    message:
-                        "Expected no participant rows or an empty-state message"
+                if (rowCount === 0) {
+                    return true;
                 }
-            )
-            .toBe(true);
+
+                return await this.noResultsMessage.isVisible();
+
+            },
+            {
+                timeout: 10000,
+
+                message:
+                    "Expected no participant rows or an empty-state message"
+            }
+        ).toBe(true);
 
         logger.info(
             "No matching participant confirmed"
         );
     }
 
-    /**
-     * Verify every visible row has the expected status
-     */
+    // =========================================================
+    // VERIFY STATUS
+    // =========================================================
+
     async verifyAllRowsHaveStatus(
-        status: "Approved" | "Pending" | "Rejected"
+        status:
+            | "Approved"
+            | "Pending"
+            | "Rejected"
     ): Promise<void> {
 
         logger.info(
@@ -635,53 +812,56 @@ export class ParticipantPage extends BasePage {
         );
 
         /*
-         * Wait until the table contains rows and every
-         * visible row has the expected status.
-         *
-         * This replaces:
-         *
-         * await page.waitForTimeout(500);
-         *
-         * which was causing the Jenkins failure.
+         * Poll until the table has at least one row
+         * and every visible row contains the expected
+         * status.
          */
-        await expect
-            .poll(
-                async () => {
+        await expect.poll(
+            async () => {
 
-                    const count =
-                        await this.tableRows.count();
+                const count =
+                    await this.tableRows.count();
 
-                    if (count === 0) {
+                if (count === 0) {
+                    return false;
+                }
+
+                for (
+                    let i = 0;
+                    i < count;
+                    i++
+                ) {
+
+                    const rowText =
+                        await this.tableRows
+                            .nth(i)
+                            .innerText();
+
+                    logger.info(
+                        `Row ${i + 1}: ${rowText}`
+                    );
+
+                    const hasExpectedStatus =
+                        new RegExp(
+                            `\\b${status}\\b`,
+                            "i"
+                        ).test(rowText);
+
+                    if (!hasExpectedStatus) {
                         return false;
                     }
-
-                    for (let i = 0; i < count; i++) {
-
-                        const rowText =
-                            await this.tableRows
-                                .nth(i)
-                                .innerText();
-
-                        const hasExpectedStatus =
-                            new RegExp(
-                                `\\b${status}\\b`,
-                                "i"
-                            ).test(rowText);
-
-                        if (!hasExpectedStatus) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                },
-                {
-                    timeout: 10000,
-                    message:
-                        `Not all visible participant rows have status "${status}"`
                 }
-            )
-            .toBe(true);
+
+                return true;
+
+            },
+            {
+                timeout: 10000,
+
+                message:
+                    `Not all visible participant rows have status "${status}"`
+            }
+        ).toBe(true);
 
         const count =
             await this.tableRows.count();
