@@ -50,9 +50,7 @@ export class ParticipantPage extends BasePage {
 
         this.accountStatusSelect = this.modal.locator("select.reg-select");
 
-        this.passwordInput = this.modal.getByPlaceholder(
-            "Enter password (min 6 chars)"
-        );
+      this.passwordInput = this.modal.getByPlaceholder("Enter password (min 8 chars, mixed case, symbol)"  );
 
         this.cancelBtn = this.modal.getByRole(
             "button",
