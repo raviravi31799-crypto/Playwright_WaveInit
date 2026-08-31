@@ -1,4 +1,3 @@
-
 import { Locator, Page, expect } from "@playwright/test";
 import { BasePage } from "../basepage";
 import { logger } from "../../utils/logger";
@@ -297,9 +296,17 @@ export class ParticipantPage extends BasePage {
             timeout: 15000
         });
 
+        await this.searchInput.click();
         await this.searchInput.fill("");
 
-        await this.searchInput.fill(name);
+        // Type character-by-character instead of using fill() for the
+        // actual search term. Some React/controlled-input search boxes
+        // are wired to onKeyUp/onKeyDown (for debounced filtering) rather
+        // than relying solely on the "input" event that fill() dispatches.
+        // fill() can silently leave the visible value updated without the
+        // app's filter logic ever running - pressSequentially reproduces
+        // real keystrokes so the app's own debounce/filter handlers fire.
+        await this.searchInput.pressSequentially(name, { delay: 50 });
 
         logger.info(
             `Searching participant: "${name}"`
@@ -307,6 +314,12 @@ export class ParticipantPage extends BasePage {
 
         // Increased wait for Jenkins
         await this.page.waitForTimeout(3000);
+
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
     }
 
     /**
@@ -513,14 +526,61 @@ export class ParticipantPage extends BasePage {
             timeout: 15000
         });
 
+        // Diagnostic: log exactly which DOM element this locator resolved
+        // to. If it's not the real filter control (e.g. a status badge or
+        // legend item that happens to also have an accessible name of
+        // "Approved"/"Pending"/"Rejected"), this will show up clearly in
+        // the CI logs and explain why clicking it has no effect.
+        const elementInfo = await filterBtn.evaluate((el) => {
+            const e = el as HTMLElement;
+            return `<${e.tagName.toLowerCase()} class="${e.className}" role="${e.getAttribute("role") ?? ""}" data-testid="${e.getAttribute("data-testid") ?? ""}">${(e.textContent ?? "").trim().slice(0, 60)}</${e.tagName.toLowerCase()}>`;
+        }).catch(() => "could not resolve element info");
+
+        logger.info(`${status} filter locator resolved to: ${elementInfo}`);
+
+        const rowsBefore = await this.tableRows.allTextContents();
+        const urlBefore = this.page.url();
+
         await filterBtn.click();
 
         logger.info(
             `${status} filter clicked`
         );
 
+        // Wait for the list to actually re-render instead of relying only
+        // on a fixed sleep
+        await this.page.waitForTimeout(1500);
+
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
+
         // Increased wait for Jenkins / QA environment
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(1500);
+
+        const rowsAfter = await this.tableRows.allTextContents();
+        const urlAfter = this.page.url();
+
+        if (urlBefore !== urlAfter) {
+            logger.info(`URL changed after ${status} filter click: ${urlBefore} -> ${urlAfter}`);
+        }
+
+        if (
+            rowsBefore.length > 0 &&
+            JSON.stringify(rowsBefore) === JSON.stringify(rowsAfter)
+        ) {
+            logger.error(
+                `${status} filter click produced NO visible change in the table ` +
+                `(same ${rowsBefore.length} row(s) before and after). This strongly ` +
+                `suggests "${status}FilterBtn" is not the real filter control - it ` +
+                `likely matched an unrelated element with the same accessible name ` +
+                `(e.g. a status badge/legend). Resolved element was: ${elementInfo}. ` +
+                `Inspect the live page (e.g. with "npx playwright codegen <url>" after ` +
+                `logging in) to find the correct locator for the actual filter tab/button.`
+            );
+        }
 
         logger.info(
             `Waiting for ${status} filter results to load`
@@ -593,7 +653,15 @@ export class ParticipantPage extends BasePage {
         );
 
         // Increased wait for Jenkins
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(1500);
+
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
+
+        await this.page.waitForTimeout(1500);
 
         const rowCount = await this.tableRows.count();
 
@@ -606,15 +674,37 @@ export class ParticipantPage extends BasePage {
             return;
         }
 
-        await expect(
-            this.noResultsMessage
-        ).toBeVisible({
-            timeout: 15000
-        });
-
-        logger.info(
-            "Empty-state message confirmed"
+        // Widened to cover more likely empty-state phrasings
+        const noResultsMessage = this.page.getByText(
+            /no participants found|no results found|no matching participants|no data|no records|nothing found|no participants to display|no participants match/i
         );
+
+        const isMessageVisible = await noResultsMessage.isVisible().catch(() => false);
+
+        if (isMessageVisible) {
+            logger.info(
+                "Empty-state message confirmed"
+            );
+            return;
+        }
+
+        // Neither zero rows nor a recognized empty-state message - log
+        // exactly what IS on screen so the real behaviour/copy can be
+        // identified from the next run's logs.
+        const rowTexts = (await this.tableRows.allTextContents())
+            .map(t => t.replace(/\s+/g, " ").trim());
+
+        logger.error(
+            `Expected no matching participants for this search, but found ` +
+            `${rowCount} row(s): ${JSON.stringify(rowTexts)}. This suggests either ` +
+            `the search input isn't actually filtering the list, or the app's ` +
+            `empty-state message text doesn't match the expected phrasing.`
+        );
+
+        await expect(
+            noResultsMessage,
+            `Search returned ${rowCount} unexpected row(s) instead of an empty state: ${JSON.stringify(rowTexts)}`
+        ).toBeVisible({ timeout: 5000 });
     }
 
     /**
@@ -651,6 +741,11 @@ export class ParticipantPage extends BasePage {
             `Expected at least one "${status}" participant row`
         ).toBeGreaterThan(0);
 
+        // Collect ALL mismatches instead of throwing on the first one, so a
+        // single failing run gives the full picture rather than stopping
+        // after row 1.
+        const mismatches: string[] = [];
+
         for (let i = 0; i < count; i++) {
 
             const row = this.tableRows.nth(i);
@@ -660,19 +755,31 @@ export class ParticipantPage extends BasePage {
                 timeout: 10000
             });
 
-            const rowText = await row.innerText();
+            const rowText = (await row.innerText()).replace(/\s+/g, " ").trim();
 
             logger.info(
                 `Row ${i + 1} text: ${rowText}`
             );
 
-            await expect(row).toContainText(
-                new RegExp(status, "i"),
-                {
-                    timeout: 15000
-                }
+            if (!new RegExp(status, "i").test(rowText)) {
+                mismatches.push(`Row ${i + 1}: "${rowText}"`);
+            }
+        }
+
+        if (mismatches.length > 0) {
+            logger.error(
+                `${mismatches.length}/${count} row(s) did not have status "${status}" ` +
+                `after clicking the ${status} filter. This usually means the filter ` +
+                `button locator is not targeting the real filter control (it may be ` +
+                `clicking a status badge/legend item instead). Mismatched rows:\n` +
+                mismatches.join("\n")
             );
         }
+
+        expect(
+            mismatches,
+            `${mismatches.length} row(s) do not have status "${status}":\n${mismatches.join("\n")}`
+        ).toHaveLength(0);
 
         logger.info(
             `All ${count} visible row(s) confirmed as "${status}"`
@@ -681,4 +788,3 @@ export class ParticipantPage extends BasePage {
 }
 
 export default ParticipantPage;
-
