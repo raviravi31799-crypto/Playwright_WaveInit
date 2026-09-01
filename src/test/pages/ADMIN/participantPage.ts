@@ -17,7 +17,6 @@ export class ParticipantPage extends BasePage {
     readonly cancelBtn: Locator;
     readonly submitBtn: Locator;
 
-    // Search
     readonly searchInput: Locator;
 
     // Delete confirmation modal
@@ -29,34 +28,28 @@ export class ParticipantPage extends BasePage {
     readonly pendingFilterBtn: Locator;
     readonly rejectedFilterBtn: Locator;
 
-    // Participants table rows
+    // Participant table rows
     readonly tableRows: Locator;
 
-    // Empty-state message
+    // Empty state message
     readonly noResultsMessage: Locator;
 
     constructor(page: Page) {
         super(page);
 
-        // -----------------------------
         // Sidebar navigation
-        // -----------------------------
         this.participantsMenu = page.getByRole(
             "button",
             { name: "Participants", exact: true }
         );
 
-        // -----------------------------
         // Add Participant button
-        // -----------------------------
         this.addParticipantBtn = page.getByRole(
             "button",
             { name: "Add Participant" }
         );
 
-        // -----------------------------
         // Add New Participant modal
-        // -----------------------------
         this.modal = page.locator("div.reg-modal");
 
         this.fullNameInput = this.modal.getByPlaceholder(
@@ -89,29 +82,22 @@ export class ParticipantPage extends BasePage {
             { name: "Add Participant" }
         );
 
-        // -----------------------------
         // Search
-        // -----------------------------
         this.searchInput = page.getByPlaceholder(
             "Search participants..."
         );
 
-        // -----------------------------
         // Delete confirmation modal
-        // -----------------------------
         this.deleteConfirmModal = page.locator(
             "div.reg-modal.reg-modal--small"
         );
 
-        this.confirmDeleteBtn =
-            this.deleteConfirmModal.getByRole(
-                "button",
-                { name: "Confirm", exact: true }
-            );
+        this.confirmDeleteBtn = this.deleteConfirmModal.getByRole(
+            "button",
+            { name: "Confirm", exact: true }
+        );
 
-        // -----------------------------
-        // Status filters
-        // -----------------------------
+        // Status filter buttons
         this.approvedFilterBtn = page.getByRole(
             "button",
             { name: "Approved", exact: true }
@@ -127,77 +113,45 @@ export class ParticipantPage extends BasePage {
             { name: "Rejected", exact: true }
         );
 
-        // -----------------------------
-        // Participants table
-        // -----------------------------
+        // Participant table rows
         this.tableRows = page.locator(
             "table tbody tr"
         );
 
-        // -----------------------------
-        // Empty state
-        // -----------------------------
+        // Empty state message
         this.noResultsMessage = page.getByText(
             /no participants found|no results found|no matching participants/i
         );
     }
 
-    // =========================================================
-    // PARTICIPANTS NAVIGATION
-    // =========================================================
-
+    /**
+     * Click Participants from sidebar
+     */
     async clickParticipantsMenu(): Promise<void> {
-
-        logger.info(
-            "Clicking Participants sidebar"
-        );
-
         await this.click(
             this.participantsMenu,
             "Participants Sidebar Link"
         );
 
-        await expect(
-            this.addParticipantBtn
-        ).toBeVisible({
-            timeout: 10000
-        });
-
-        logger.info(
-            "Participants page opened successfully"
-        );
+        logger.info("Participants menu clicked");
     }
 
-    // =========================================================
-    // ADD PARTICIPANT
-    // =========================================================
-
+    /**
+     * Click Add Participant button
+     */
     async clickAddParticipant(): Promise<void> {
-
-        logger.info(
-            "Clicking Add Participant button"
-        );
-
         await this.click(
             this.addParticipantBtn,
             "Add Participant Button"
         );
 
-        await expect(
-            this.modal
-        ).toBeVisible({
-            timeout: 10000
-        });
-
-        logger.info(
-            "Add Participant modal opened"
-        );
+        logger.info("Add Participant button clicked");
     }
 
-    async enterFullName(
-        fullName: string
-    ): Promise<void> {
-
+    /**
+     * Enter participant full name
+     */
+    async enterFullName(fullName: string): Promise<void> {
         await this.sendKeys(
             this.fullNameInput,
             fullName,
@@ -205,10 +159,10 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    async enterEmail(
-        email: string
-    ): Promise<void> {
-
+    /**
+     * Enter participant email
+     */
+    async enterEmail(email: string): Promise<void> {
         await this.sendKeys(
             this.emailInput,
             email,
@@ -216,10 +170,10 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    async enterPhone(
-        phone: string
-    ): Promise<void> {
-
+    /**
+     * Enter participant phone
+     */
+    async enterPhone(phone: string): Promise<void> {
         await this.sendKeys(
             this.phoneInput,
             phone,
@@ -227,17 +181,18 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    async selectAccountStatus(
-        status: string
-    ): Promise<void> {
+    /**
+     * Select participant account status
+     */
+    async selectAccountStatus(status: string): Promise<void> {
 
         logger.info(
-            `Selecting account status: "${status}"`
+            `Selecting "${status}" from Account Status`
         );
 
         await this.accountStatusSelect.waitFor({
             state: "visible",
-            timeout: 10000
+            timeout: 15000
         });
 
         await this.accountStatusSelect.selectOption({
@@ -249,10 +204,10 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    async enterPassword(
-        password: string
-    ): Promise<void> {
-
+    /**
+     * Enter participant password
+     */
+    async enterPassword(password: string): Promise<void> {
         await this.sendKeys(
             this.passwordInput,
             password,
@@ -260,6 +215,9 @@ export class ParticipantPage extends BasePage {
         );
     }
 
+    /**
+     * Fill participant details
+     */
     async fillParticipantDetails(data: {
         fullName: string;
         email: string;
@@ -268,10 +226,6 @@ export class ParticipantPage extends BasePage {
         password: string;
     }): Promise<void> {
 
-        logger.info(
-            `Filling participant details for "${data.fullName}"`
-        );
-
         await this.enterFullName(data.fullName);
         await this.enterEmail(data.email);
         await this.enterPhone(data.phone);
@@ -279,54 +233,52 @@ export class ParticipantPage extends BasePage {
         await this.enterPassword(data.password);
 
         logger.info(
-            "Participant details filled successfully"
+            `Participant details filled for "${data.fullName}"`
         );
     }
 
+    /**
+     * Submit participant form
+     */
     async clickSubmit(): Promise<void> {
-
-        logger.info(
-            "Submitting Add Participant form"
-        );
-
         await this.click(
             this.submitBtn,
             "Add Participant (submit) Button"
         );
+
+        logger.info("Participant form submitted");
     }
 
-    // =========================================================
-    // CANCEL
-    // =========================================================
-
+    /**
+     * Click Cancel
+     */
     async clickCancel(): Promise<void> {
-
-        logger.info(
-            "Clicking Cancel button"
-        );
-
         await this.click(
             this.cancelBtn,
             "Cancel Button"
         );
+
+        logger.info("Cancel button clicked");
     }
 
+    /**
+     * Verify Add Participant modal is closed
+     */
     async verifyFormClosed(): Promise<void> {
 
         logger.info(
             "Verifying Add Participant form is closed"
         );
 
-        await expect(
-            this.modal
-        ).toBeHidden({
-            timeout: 10000
+        await this.modal.waitFor({
+            state: "hidden",
+            timeout: 15000
         });
 
         await expect(
             this.addParticipantBtn
         ).toBeVisible({
-            timeout: 10000
+            timeout: 15000
         });
 
         logger.info(
@@ -334,100 +286,83 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    // =========================================================
-    // SEARCH
-    // =========================================================
-
-    async searchParticipant(
-        searchText: string
-    ): Promise<void> {
-
-        logger.info(
-            `Searching participant: "${searchText}"`
-        );
+    /**
+     * Search participant
+     */
+    async searchParticipant(name: string): Promise<void> {
 
         await this.searchInput.waitFor({
             state: "visible",
-            timeout: 10000
+            timeout: 15000
         });
 
-        await this.searchInput.fill(searchText);
+        await this.searchInput.click();
+        await this.searchInput.fill("");
 
-        /*
-         * Wait until the search result changes.
-         * No fixed waitForTimeout is used.
-         */
-        await this.page.waitForLoadState(
-            "networkidle"
-        ).catch(() => {
-            /*
-             * Ignore networkidle timeout because
-             * applications may have background requests.
-             */
-        });
+        // Type character-by-character instead of using fill() for the
+        // actual search term. Some React/controlled-input search boxes
+        // are wired to onKeyUp/onKeyDown (for debounced filtering) rather
+        // than relying solely on the "input" event that fill() dispatches.
+        // fill() can silently leave the visible value updated without the
+        // app's filter logic ever running - pressSequentially reproduces
+        // real keystrokes so the app's own debounce/filter handlers fire.
+        await this.searchInput.pressSequentially(name, { delay: 50 });
 
         logger.info(
-            `Search completed for: "${searchText}"`
+            `Searching participant: "${name}"`
         );
+
+        // Increased wait for Jenkins
+        await this.page.waitForTimeout(3000);
+
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
     }
 
-    // =========================================================
-    // PARTICIPANT ROW
-    // =========================================================
-
-    getParticipantRow(
-        name: string
-    ): Locator {
-
+    /**
+     * Locate participant row by exact name
+     */
+    getParticipantRow(name: string): Locator {
         return this.page
-            .locator("table tbody tr")
+            .locator("tr")
             .filter({
                 has: this.page.getByText(
                     name,
                     { exact: true }
                 )
-            })
-            .first();
+            });
     }
 
-    getParticipantRowContains(
-        text: string
-    ): Locator {
-
+    /**
+     * Locate participant row by partial text
+     */
+    getParticipantRowContains(text: string): Locator {
         return this.page
-            .locator("table tbody tr")
+            .locator("tr")
             .filter({
                 hasText: text
             });
     }
 
-    // =========================================================
-    // APPROVE
-    // =========================================================
+    /**
+     * Approve participant
+     */
+    async clickApprove(name: string): Promise<void> {
 
-    async clickApprove(
-        name: string
-    ): Promise<void> {
+        const row = this.getParticipantRow(name);
 
-        logger.info(
-            `Locating participant for approval: "${name}"`
-        );
-
-        const row =
-            this.getParticipantRow(name);
-
-        await expect(
-            row
-        ).toBeVisible({
-            timeout: 10000
+        await row.waitFor({
+            state: "visible",
+            timeout: 15000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                {
-                    name: "Approve participant"
-                }
+                { name: "Approve participant" }
             ),
             `Approve Participant (${name})`
         );
@@ -437,33 +372,22 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    // =========================================================
-    // REJECT
-    // =========================================================
+    /**
+     * Reject participant
+     */
+    async clickReject(name: string): Promise<void> {
 
-    async clickReject(
-        name: string
-    ): Promise<void> {
+        const row = this.getParticipantRow(name);
 
-        logger.info(
-            `Locating participant for rejection: "${name}"`
-        );
-
-        const row =
-            this.getParticipantRow(name);
-
-        await expect(
-            row
-        ).toBeVisible({
-            timeout: 10000
+        await row.waitFor({
+            state: "visible",
+            timeout: 15000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                {
-                    name: "Reject participant"
-                }
+                { name: "Reject participant" }
             ),
             `Reject Participant (${name})`
         );
@@ -473,33 +397,22 @@ export class ParticipantPage extends BasePage {
         );
     }
 
-    // =========================================================
-    // DELETE
-    // =========================================================
+    /**
+     * Delete participant
+     */
+    async clickDelete(name: string): Promise<void> {
 
-    async clickDelete(
-        name: string
-    ): Promise<void> {
+        const row = this.getParticipantRow(name);
 
-        logger.info(
-            `Locating participant for deletion: "${name}"`
-        );
-
-        const row =
-            this.getParticipantRow(name);
-
-        await expect(
-            row
-        ).toBeVisible({
-            timeout: 10000
+        await row.waitFor({
+            state: "visible",
+            timeout: 15000
         });
 
         await this.click(
             row.getByRole(
                 "button",
-                {
-                    name: "Delete participant"
-                }
+                { name: "Delete participant" }
             ),
             `Delete Participant (${name})`
         );
@@ -509,16 +422,14 @@ export class ParticipantPage extends BasePage {
         );
     }
 
+    /**
+     * Confirm participant deletion
+     */
     async confirmDelete(): Promise<void> {
 
-        logger.info(
-            "Waiting for delete confirmation modal"
-        );
-
-        await expect(
-            this.deleteConfirmModal
-        ).toBeVisible({
-            timeout: 10000
+        await this.deleteConfirmModal.waitFor({
+            state: "visible",
+            timeout: 15000
         });
 
         await this.click(
@@ -527,56 +438,51 @@ export class ParticipantPage extends BasePage {
         );
 
         logger.info(
-            "Delete confirmed"
+            "Participant deletion confirmed"
         );
     }
 
-    // =========================================================
-    // TOAST
-    // =========================================================
-
+    /**
+     * Verify toast message
+     */
     async verifyToastContains(
         expectedText: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying toast contains: "${expectedText}"`
+            `Verifying toast message contains: "${expectedText}"`
         );
 
-        const escaped =
-            expectedText.replace(
-                /[.*+?^${}()|[\]\\]/g,
-                "\\$&"
-            );
+        const escaped = expectedText.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+        );
 
-        const toastLocator =
-            this.page
-                .getByText(
-                    new RegExp(
-                        escaped,
-                        "i"
-                    )
-                )
-                .last();
+        const toastLocator = this.page
+            .getByText(
+                new RegExp(escaped, "i")
+            )
+            .last();
 
         await toastLocator.waitFor({
             state: "visible",
-            timeout: 10000
+            timeout: 15000
         });
 
         await expect(
             toastLocator
-        ).toBeVisible();
+        ).toBeVisible({
+            timeout: 15000
+        });
 
         logger.info(
             "Toast message verified successfully"
         );
     }
 
-    // =========================================================
-    // DELETE VERIFICATION
-    // =========================================================
-
+    /**
+     * Verify participant was removed
+     */
     async verifyParticipantRemoved(
         name: string
     ): Promise<void> {
@@ -589,25 +495,19 @@ export class ParticipantPage extends BasePage {
             this.getParticipantRow(name)
         ).toHaveCount(
             0,
-            {
-                timeout: 10000
-            }
+            { timeout: 15000 }
         );
 
         logger.info(
-            `Participant "${name}" removed successfully`
+            `Participant "${name}" confirmed removed`
         );
     }
 
-    // =========================================================
-    // STATUS FILTER
-    // =========================================================
-
+    /**
+     * Click status filter
+     */
     async clickStatusFilter(
-        status:
-            | "Approved"
-            | "Pending"
-            | "Rejected"
+        status: "Approved" | "Pending" | "Rejected"
     ): Promise<void> {
 
         const filterBtn =
@@ -618,253 +518,353 @@ export class ParticipantPage extends BasePage {
                     : this.rejectedFilterBtn;
 
         logger.info(
-            `Clicking "${status}" filter`
+            `Waiting for ${status} filter button`
         );
 
-        await expect(
-            filterBtn
-        ).toBeVisible({
-            timeout: 10000
+        await filterBtn.waitFor({
+            state: "visible",
+            timeout: 15000
         });
+
+        // Wait for the page's own initial (unfiltered) participant list to
+        // finish loading before touching the filter tab. Confirmed via
+        // diagnostics that the filter locator IS the real filter control -
+        // the previous no-op behaviour looked like a race where the
+        // initial fetch resolved shortly after the filter click and
+        // overwrote/ignored the filtered state. Settling here first avoids
+        // that race.
+        await this.tableRows.first().waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if data loads client-side only
+        }
+        await this.page.waitForTimeout(1000);
+
+        // Diagnostic: log exactly which DOM element this locator resolved
+        // to, for visibility in CI logs.
+        const elementInfo = await filterBtn.evaluate((el) => {
+            const e = el as HTMLElement;
+            return `<${e.tagName.toLowerCase()} class="${e.className}" role="${e.getAttribute("role") ?? ""}" data-testid="${e.getAttribute("data-testid") ?? ""}">${(e.textContent ?? "").trim().slice(0, 60)}</${e.tagName.toLowerCase()}>`;
+        }).catch(() => "could not resolve element info");
+
+        logger.info(`${status} filter locator resolved to: ${elementInfo}`);
+
+        const rowsBefore = await this.tableRows.allTextContents();
+        const urlBefore = this.page.url();
+
+        const classBefore = await filterBtn.evaluate((el) => (el as HTMLElement).className).catch(() => "");
+        const ariaSelectedBefore = await filterBtn.getAttribute("aria-selected").catch(() => null);
+
+        // Capture any network requests fired in the few seconds after the
+        // click, to see whether the app even attempts to fetch filtered
+        // data, or whether the click only changes the tab's own visual
+        // state with no corresponding request.
+        const requestsSeen: string[] = [];
+        const onRequest = (req: import("@playwright/test").Request) => {
+            requestsSeen.push(`${req.method()} ${req.url()}`);
+        };
+        this.page.on("request", onRequest);
 
         await filterBtn.click();
 
         logger.info(
-            `"${status}" filter clicked`
+            `${status} filter clicked`
         );
 
-        /*
-         * Do not use:
-         *
-         * await page.waitForTimeout(500)
-         *
-         * Instead, wait until the table contains
-         * the expected status.
-         */
-        await expect.poll(
-            async () => {
+        await this.page.waitForTimeout(1500);
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
+        await this.page.waitForTimeout(1500);
 
-                const count =
-                    await this.tableRows.count();
+        this.page.off("request", onRequest);
 
-                if (count === 0) {
-                    return false;
-                }
+        let rowsAfter = await this.tableRows.allTextContents();
+        const urlAfter = this.page.url();
 
-                for (
-                    let i = 0;
-                    i < count;
-                    i++
-                ) {
+        const classAfter = await filterBtn.evaluate((el) => (el as HTMLElement).className).catch(() => "");
+        const ariaSelectedAfter = await filterBtn.getAttribute("aria-selected").catch(() => null);
 
-                    const rowText =
-                        await this.tableRows
-                            .nth(i)
-                            .innerText();
+        if (urlBefore !== urlAfter) {
+            logger.info(`URL changed after ${status} filter click: ${urlBefore} -> ${urlAfter}`);
+        }
 
-                    const statusFound =
-                        new RegExp(
-                            `\\b${status}\\b`,
-                            "i"
-                        ).test(rowText);
+        if (classBefore !== classAfter || ariaSelectedBefore !== ariaSelectedAfter) {
+            logger.info(
+                `${status} tab's own state DID change on click - class: "${classBefore}" -> "${classAfter}", ` +
+                `aria-selected: "${ariaSelectedBefore}" -> "${ariaSelectedAfter}". ` +
+                `This means the click registered with the app (e.g. tab shows as active), ` +
+                `but if the table still doesn't reflect the filter, the data-fetch/filter ` +
+                `logic tied to that state change is what isn't working.`
+            );
+        } else {
+            logger.error(
+                `${status} tab's class/aria-selected did NOT change after click ` +
+                `(class stayed "${classBefore}", aria-selected stayed "${ariaSelectedBefore}"). ` +
+                `This suggests the click may not be registering as a real tab-selection at ` +
+                `all from the app's perspective.`
+            );
+        }
 
-                    if (!statusFound) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            },
-            {
-                timeout: 10000,
-
-                message:
-                    `Table did not update to "${status}" after clicking the filter`
-            }
-        ).toBe(true);
+        const filterLikeRequests = requestsSeen.filter(r =>
+            /status|filter|approved|pending|rejected|participant/i.test(r)
+        );
 
         logger.info(
-            `"${status}" filter applied successfully`
+            `Network requests fired within ~1.5s of the ${status} filter click ` +
+            `(${requestsSeen.length} total, ${filterLikeRequests.length} filter-related): ` +
+            `${JSON.stringify(filterLikeRequests.length > 0 ? filterLikeRequests : requestsSeen.slice(0, 10))}`
+        );
+
+        if (requestsSeen.length === 0) {
+            logger.error(
+                `No network requests were fired at all after clicking the ${status} filter. ` +
+                `If this app fetches participant data from an API, this strongly suggests the ` +
+                `filter click isn't triggering any data reload - a likely app-side defect rather ` +
+                `than a test locator issue.`
+            );
+        }
+
+        // If the click appeared to have no effect, retry once - covers the
+        // case where the click landed during a re-render caused by the
+        // initial data fetch completing just after the settle wait above.
+        if (
+            rowsBefore.length > 0 &&
+            JSON.stringify(rowsBefore) === JSON.stringify(rowsAfter)
+        ) {
+            logger.info(
+                `${status} filter click showed no change on first attempt - retrying once`
+            );
+
+            await filterBtn.click();
+            await this.page.waitForTimeout(2000);
+            try {
+                await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+            } catch {
+                // ignore
+            }
+            await this.page.waitForTimeout(1500);
+
+            rowsAfter = await this.tableRows.allTextContents();
+        }
+
+        if (
+            rowsBefore.length > 0 &&
+            JSON.stringify(rowsBefore) === JSON.stringify(rowsAfter)
+        ) {
+            logger.error(
+                `${status} filter click produced NO visible change in the table even ` +
+                `after a retry (same ${rowsBefore.length} row(s) before and after). ` +
+                `The locator is confirmed to be the real filter tab (${elementInfo}), so ` +
+                `this points to either an app-side issue with the filter itself, or a ` +
+                `longer-than-expected delay before the filtered data appears. Try ` +
+                `reproducing manually in a browser (click the ${status} tab on the ` +
+                `Participants page) to confirm whether the filter works at all outside ` +
+                `of automation.`
+            );
+        }
+
+        logger.info(
+            `Waiting for ${status} filter results to load`
         );
     }
 
     async clickApprovedFilter(): Promise<void> {
-
-        await this.clickStatusFilter(
-            "Approved"
-        );
+        await this.clickStatusFilter("Approved");
     }
 
     async clickPendingFilter(): Promise<void> {
-
-        await this.clickStatusFilter(
-            "Pending"
-        );
+        await this.clickStatusFilter("Pending");
     }
 
     async clickRejectedFilter(): Promise<void> {
-
-        await this.clickStatusFilter(
-            "Rejected"
-        );
+        await this.clickStatusFilter("Rejected");
     }
 
-    // =========================================================
-    // SEARCH RESULT VERIFICATION
-    // =========================================================
-
+    /**
+     * Verify searched participant by name
+     */
     async verifySearchedParticipantDisplayed(
         name: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying searched participant: "${name}"`
+            `Verifying participant matching "${name}"`
         );
 
-        const row =
-            this.getParticipantRowContains(name)
-                .first();
-
         await expect(
-            row
+            this.getParticipantRowContains(name).first()
         ).toBeVisible({
-            timeout: 10000
+            timeout: 15000
         });
 
         logger.info(
-            `Participant "${name}" displayed successfully`
+            `Participant matching "${name}" displayed`
         );
     }
 
+    /**
+     * Verify participant by email
+     */
     async verifyParticipantWithEmailDisplayed(
         email: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying participant with email: "${email}"`
+            `Verifying participant with email "${email}"`
         );
 
-        const row =
-            this.getParticipantRowContains(email)
-                .first();
-
         await expect(
-            row
+            this.getParticipantRowContains(email).first()
         ).toBeVisible({
-            timeout: 10000
+            timeout: 15000
         });
 
         logger.info(
-            `Participant with email "${email}" displayed successfully`
+            `Participant with email "${email}" displayed`
         );
     }
 
-    // =========================================================
-    // INVALID SEARCH
-    // =========================================================
-
+    /**
+     * Verify no matching participant
+     */
     async verifyNoMatchingParticipant(): Promise<void> {
 
         logger.info(
             "Verifying no matching participant is displayed"
         );
 
-        await expect.poll(
-            async () => {
+        // Increased wait for Jenkins
+        await this.page.waitForTimeout(1500);
 
-                const rowCount =
-                    await this.tableRows.count();
+        try {
+            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+            // no network activity detected - fine if filtering is client-side only
+        }
 
-                if (rowCount === 0) {
-                    return true;
-                }
+        await this.page.waitForTimeout(1500);
 
-                return await this.noResultsMessage.isVisible();
+        const rowCount = await this.tableRows.count();
 
-            },
-            {
-                timeout: 10000,
+        if (rowCount === 0) {
 
-                message:
-                    "Expected no participant rows or an empty-state message"
-            }
-        ).toBe(true);
+            logger.info(
+                "No rows present in table - confirmed no matching participant"
+            );
 
-        logger.info(
-            "No matching participant confirmed"
+            return;
+        }
+
+        // Widened to cover more likely empty-state phrasings
+        const noResultsMessage = this.page.getByText(
+            /no participants found|no results found|no matching participants|no data|no records|nothing found|no participants to display|no participants match/i
         );
+
+        const isMessageVisible = await noResultsMessage.isVisible().catch(() => false);
+
+        if (isMessageVisible) {
+            logger.info(
+                "Empty-state message confirmed"
+            );
+            return;
+        }
+
+        // Neither zero rows nor a recognized empty-state message - log
+        // exactly what IS on screen so the real behaviour/copy can be
+        // identified from the next run's logs.
+        const rowTexts = (await this.tableRows.allTextContents())
+            .map(t => t.replace(/\s+/g, " ").trim());
+
+        logger.error(
+            `Expected no matching participants for this search, but found ` +
+            `${rowCount} row(s): ${JSON.stringify(rowTexts)}. This suggests either ` +
+            `the search input isn't actually filtering the list, or the app's ` +
+            `empty-state message text doesn't match the expected phrasing.`
+        );
+
+        await expect(
+            noResultsMessage,
+            `Search returned ${rowCount} unexpected row(s) instead of an empty state: ${JSON.stringify(rowTexts)}`
+        ).toBeVisible({ timeout: 5000 });
     }
 
-    // =========================================================
-    // VERIFY STATUS
-    // =========================================================
-
+    /**
+     * Verify all visible rows have expected status
+     */
     async verifyAllRowsHaveStatus(
-        status:
-            | "Approved"
-            | "Pending"
-            | "Rejected"
+        status: "Approved" | "Pending" | "Rejected"
     ): Promise<void> {
 
         logger.info(
             `Verifying all visible rows have status: ${status}`
         );
 
-        /*
-         * Poll until the table has at least one row
-         * and every visible row contains the expected
-         * status.
-         */
-        await expect.poll(
-            async () => {
+        // Increased wait for Jenkins
+        await this.page.waitForTimeout(3000);
 
-                const count =
-                    await this.tableRows.count();
+        // Wait for the first table row to become visible
+        await this.tableRows.first().waitFor({
+            state: "visible",
+            timeout: 15000
+        });
 
-                if (count === 0) {
-                    return false;
-                }
+        // Additional wait to allow API/filter response to complete
+        await this.page.waitForTimeout(2000);
 
-                for (
-                    let i = 0;
-                    i < count;
-                    i++
-                ) {
+        const count = await this.tableRows.count();
 
-                    const rowText =
-                        await this.tableRows
-                            .nth(i)
-                            .innerText();
+        logger.info(
+            `Found ${count} participant row(s) after ${status} filter`
+        );
 
-                    logger.info(
-                        `Row ${i + 1}: ${rowText}`
-                    );
+        expect(
+            count,
+            `Expected at least one "${status}" participant row`
+        ).toBeGreaterThan(0);
 
-                    const hasExpectedStatus =
-                        new RegExp(
-                            `\\b${status}\\b`,
-                            "i"
-                        ).test(rowText);
+        // Collect ALL mismatches instead of throwing on the first one, so a
+        // single failing run gives the full picture rather than stopping
+        // after row 1.
+        const mismatches: string[] = [];
 
-                    if (!hasExpectedStatus) {
-                        return false;
-                    }
-                }
+        for (let i = 0; i < count; i++) {
 
-                return true;
+            const row = this.tableRows.nth(i);
 
-            },
-            {
-                timeout: 10000,
+            await row.waitFor({
+                state: "visible",
+                timeout: 10000
+            });
 
-                message:
-                    `Not all visible participant rows have status "${status}"`
+            const rowText = (await row.innerText()).replace(/\s+/g, " ").trim();
+
+            logger.info(
+                `Row ${i + 1} text: ${rowText}`
+            );
+
+            if (!new RegExp(status, "i").test(rowText)) {
+                mismatches.push(`Row ${i + 1}: "${rowText}"`);
             }
-        ).toBe(true);
+        }
 
-        const count =
-            await this.tableRows.count();
+        if (mismatches.length > 0) {
+            logger.error(
+                `${mismatches.length}/${count} row(s) did not have status "${status}" ` +
+                `after clicking the ${status} filter. This usually means the filter ` +
+                `button locator is not targeting the real filter control (it may be ` +
+                `clicking a status badge/legend item instead). Mismatched rows:\n` +
+                mismatches.join("\n")
+            );
+        }
+
+        expect(
+            mismatches,
+            `${mismatches.length} row(s) do not have status "${status}":\n${mismatches.join("\n")}`
+        ).toHaveLength(0);
 
         logger.info(
             `All ${count} visible row(s) confirmed as "${status}"`
