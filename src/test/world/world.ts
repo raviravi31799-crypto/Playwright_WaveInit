@@ -15,6 +15,7 @@ import { ScheduleInterviewPage } from '../pages/ADMIN/Interviewpage';
 
 
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
+import type { MyCoursesPage } from "../pages/myCourses.page";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -33,6 +34,7 @@ export class CustomWorld extends World {
     Participantspage!:ParticipantsPage;
     interviewpage!:ScheduleInterviewPage;
     participantProfilePage!: ParticipantProfilePage;
+    myCoursesPage!: MyCoursesPage;
 
 
     constructor(options: IWorldOptions) {

@@ -1,7 +1,7 @@
 {
   "validUser": {
     "email": "titooram123@gmail.com",
-    "password": "sriram123@",
+    "password": "Sriram123@",
     "expectedWelcome": "Welcome back"
   },
   "invalidUser": {
@@ -11,7 +11,7 @@
   },
   "invalidEmail": {
     "email": "invalid_titoo@gmail.com",
-    "password": "sriram123@",
+    "password": "Sriram123@",
     "expectedError": "Invalid email or password"
   }
 }
