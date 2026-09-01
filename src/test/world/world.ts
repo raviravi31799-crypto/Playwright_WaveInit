@@ -6,6 +6,7 @@ import type { BasePage } from "../pages/basepage";
 import type { HomePage } from "../pages/home.page";
 import type { RegisterPage } from "../pages/register.page";
 import type { TrainerPage } from "../pages/trainer.page";
+import type { TrainerProfilePage } from "../pages/trainerProfile.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
@@ -15,6 +16,7 @@ import { ScheduleInterviewPage } from '../pages/ADMIN/Interviewpage';
 
 
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
+import type { MyCoursesPage } from "../pages/myCourses.page";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -24,6 +26,7 @@ export class CustomWorld extends World {
     homePage!: HomePage;
     registerPage!: RegisterPage;
     trainerPage!: TrainerPage;
+    trainerProfilePage!: TrainerProfilePage;
     logger = logger;
     loginPage!: LoginPage;
     addTrainingPage!: AddTrainingPage;
@@ -33,6 +36,7 @@ export class CustomWorld extends World {
     Participantspage!:ParticipantsPage;
     interviewpage!:ScheduleInterviewPage;
     participantProfilePage!: ParticipantProfilePage;
+    myCoursesPage!: MyCoursesPage;
 
 
     constructor(options: IWorldOptions) {

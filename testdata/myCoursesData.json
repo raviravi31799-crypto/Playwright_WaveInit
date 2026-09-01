@@ -1,0 +1,31 @@
+{
+  "courseName": "React",
+  "category": "React Course",
+  "status": "PUBLISHED",
+  "description": "Comprehensive course on React with structured modules, quizzes, and coding assessments.",
+  "instructor": "sriram",
+  "instructorRole": "Course Trainer",
+  "stats": {
+    "lessons": "0",
+    "quizzes": "2",
+    "students": "1",
+    "coding": "5"
+  },
+  "menuTabs": [
+    "Structure",
+    "Lessons",
+    "AI Quiz",
+    "Coding",
+    "Discussions",
+    "Resources",
+    "Certificates",
+    "Progress"
+  ],
+  "structureSection": {
+    "bannerTitle": "Course Curriculum & Materials",
+    "bannerSubtitle": "Explore structured lessons, take AI-powered quizzes, and complete coding assessments.",
+    "startLearningButtonText": "Start Learning",
+    "overviewTitle": "Course Overview",
+    "instructorTitle": "Instructor"
+  }
+}
