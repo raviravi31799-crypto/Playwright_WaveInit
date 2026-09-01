@@ -12,6 +12,7 @@ import { ParticipantPage } from "../pages/ADMIN/participantPage";
 
 import type { ParticipantPage } from "../pages/participant.page";
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
+import type { MyCoursesPage } from "../pages/myCourses.page";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -27,6 +28,7 @@ export class CustomWorld extends World {
     addTrainerPage!: AddTrainerPage;
     participantPage!: ParticipantPage;
     participantProfilePage!: ParticipantProfilePage;
+    myCoursesPage!: MyCoursesPage;
 
 
     constructor(options: IWorldOptions) {

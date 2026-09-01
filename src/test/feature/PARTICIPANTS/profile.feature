@@ -4,7 +4,7 @@ Feature: Verify Participant Profile Details and Learning Analytics in WaveInit
     Background:
         Given the user navigates to the application
         When the user clicks on learner in the login menu
-        And the user enters participant "titooram123@gmail.com" and "sriram123@"
+        And the user enters participant "titooram123@gmail.com" and "Sriram123@"
         And the user clicks on sign in as learner
         Then the user should see the welcome message "Welcome back" in the dashboard
         When the user navigates to the participant profile page

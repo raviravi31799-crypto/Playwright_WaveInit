@@ -20,6 +20,8 @@
     "sriram": "cucumber-js --tags @sriram",
     "profile": "cucumber-js --tags @participantProfile",
     "test:profile": "cucumber-js --tags @participantProfile",
+    "myCourses": "cucumber-js --tags @myCoursesMenus",
+    "test:myCourses": "cucumber-js --tags @myCoursesMenus",
     "upload:photo": "cucumber-js --tags @upload_photo",
     "jagadeep": "cucumber-js --tags @jagadeep",
     "Jothika": "cucumber-js --tags @Jothika",

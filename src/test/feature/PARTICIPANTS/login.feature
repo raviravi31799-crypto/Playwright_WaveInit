@@ -13,7 +13,7 @@ Feature: Verify Participant login functionality in WaveInit
 
         Examples:
             | email                 | password   | welcome_message |
-            | titooram123@gmail.com | sriram123@ | Welcome back    |
+            | titooram123@gmail.com | Sriram123@ | Welcome back    |
 
     @negative @invalid_credentials
     Scenario: Verify participant login with invalid credentials using json
@@ -30,7 +30,7 @@ Feature: Verify Participant login functionality in WaveInit
         Examples:
             | email                 | password   | validation_message           |
             |                       |            | Please fill out this field.  |
-            |                       | sriram123@ | Please fill out this field.  |
+            |                       | Sriram123@ | Please fill out this field.  |
             | titooram123@gmail.com |            | Please fill out this field.  |
             | invalid_user          |            | Please fill out this field.  |
 
