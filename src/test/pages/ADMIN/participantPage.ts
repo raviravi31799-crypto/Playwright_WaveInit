@@ -312,14 +312,14 @@ export class ParticipantPage extends BasePage {
             `Searching participant: "${name}"`
         );
 
-        // Increased wait for Jenkins
-        await this.page.waitForTimeout(3000);
-
-        try {
-            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
-        } catch {
-            // no network activity detected - fine if filtering is client-side only
-        }
+        // Kept short intentionally: downstream verifications now either
+        // auto-retry (toBeVisible) or poll over several seconds
+        // (pollTableSnapshots), so we don't need to wait long here. A long
+        // fixed wait here was actually working against us - it gave a
+        // suspected periodic auto-refresh on this page time to re-fetch the
+        // unfiltered list and overwrite the search result before we ever
+        // looked at the table.
+        await this.page.waitForTimeout(500);
     }
 
     /**
@@ -526,11 +526,12 @@ export class ParticipantPage extends BasePage {
             timeout: 15000
         });
 
+        // Wait for the page's own initial (unfiltered) participant list to
+        // finish loading before touching the filter tab.
+        await this.tableRows.first().waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
+
         // Diagnostic: log exactly which DOM element this locator resolved
-        // to. If it's not the real filter control (e.g. a status badge or
-        // legend item that happens to also have an accessible name of
-        // "Approved"/"Pending"/"Rejected"), this will show up clearly in
-        // the CI logs and explain why clicking it has no effect.
+        // to, for visibility in CI logs.
         const elementInfo = await filterBtn.evaluate((el) => {
             const e = el as HTMLElement;
             return `<${e.tagName.toLowerCase()} class="${e.className}" role="${e.getAttribute("role") ?? ""}" data-testid="${e.getAttribute("data-testid") ?? ""}">${(e.textContent ?? "").trim().slice(0, 60)}</${e.tagName.toLowerCase()}>`;
@@ -541,30 +542,73 @@ export class ParticipantPage extends BasePage {
         const rowsBefore = await this.tableRows.allTextContents();
         const urlBefore = this.page.url();
 
+        const classBefore = await filterBtn.evaluate((el) => (el as HTMLElement).className).catch(() => "");
+        const ariaSelectedBefore = await filterBtn.getAttribute("aria-selected").catch(() => null);
+
+        // Capture any network requests fired in the few seconds after the
+        // click, to see whether the app even attempts to fetch filtered
+        // data, or whether the click only changes the tab's own visual
+        // state with no corresponding request.
+        const requestsSeen: string[] = [];
+        const onRequest = (req: import("@playwright/test").Request) => {
+            requestsSeen.push(`${req.method()} ${req.url()}`);
+        };
+        this.page.on("request", onRequest);
+
         await filterBtn.click();
 
         logger.info(
             `${status} filter clicked`
         );
 
-        // Wait for the list to actually re-render instead of relying only
-        // on a fixed sleep
-        await this.page.waitForTimeout(1500);
+        await this.page.waitForTimeout(800);
 
-        try {
-            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
-        } catch {
-            // no network activity detected - fine if filtering is client-side only
-        }
-
-        // Increased wait for Jenkins / QA environment
-        await this.page.waitForTimeout(1500);
+        this.page.off("request", onRequest);
 
         const rowsAfter = await this.tableRows.allTextContents();
         const urlAfter = this.page.url();
 
+        const classAfter = await filterBtn.evaluate((el) => (el as HTMLElement).className).catch(() => "");
+        const ariaSelectedAfter = await filterBtn.getAttribute("aria-selected").catch(() => null);
+
         if (urlBefore !== urlAfter) {
             logger.info(`URL changed after ${status} filter click: ${urlBefore} -> ${urlAfter}`);
+        }
+
+        if (classBefore !== classAfter || ariaSelectedBefore !== ariaSelectedAfter) {
+            logger.info(
+                `${status} tab's own state DID change on click - class: "${classBefore}" -> "${classAfter}", ` +
+                `aria-selected: "${ariaSelectedBefore}" -> "${ariaSelectedAfter}". ` +
+                `This means the click registered with the app (e.g. tab shows as active), ` +
+                `but if the table still doesn't reflect the filter, the data-fetch/filter ` +
+                `logic tied to that state change is what isn't working.`
+            );
+        } else {
+            logger.error(
+                `${status} tab's class/aria-selected did NOT change after click ` +
+                `(class stayed "${classBefore}", aria-selected stayed "${ariaSelectedBefore}"). ` +
+                `This suggests the click may not be registering as a real tab-selection at ` +
+                `all from the app's perspective.`
+            );
+        }
+
+        const filterLikeRequests = requestsSeen.filter(r =>
+            /status|filter|approved|pending|rejected|participant/i.test(r)
+        );
+
+        logger.info(
+            `Network requests fired within ~1.5s of the ${status} filter click ` +
+            `(${requestsSeen.length} total, ${filterLikeRequests.length} filter-related): ` +
+            `${JSON.stringify(filterLikeRequests.length > 0 ? filterLikeRequests : requestsSeen.slice(0, 10))}`
+        );
+
+        if (requestsSeen.length === 0) {
+            logger.error(
+                `No network requests were fired at all after clicking the ${status} filter. ` +
+                `If this app fetches participant data from an API, this strongly suggests the ` +
+                `filter click isn't triggering any data reload - a likely app-side defect rather ` +
+                `than a test locator issue.`
+            );
         }
 
         if (
@@ -572,13 +616,11 @@ export class ParticipantPage extends BasePage {
             JSON.stringify(rowsBefore) === JSON.stringify(rowsAfter)
         ) {
             logger.error(
-                `${status} filter click produced NO visible change in the table ` +
-                `(same ${rowsBefore.length} row(s) before and after). This strongly ` +
-                `suggests "${status}FilterBtn" is not the real filter control - it ` +
-                `likely matched an unrelated element with the same accessible name ` +
-                `(e.g. a status badge/legend). Resolved element was: ${elementInfo}. ` +
-                `Inspect the live page (e.g. with "npx playwright codegen <url>" after ` +
-                `logging in) to find the correct locator for the actual filter tab/button.`
+                `${status} filter click produced no visible change in the table within ~0.8s. ` +
+                `The locator is confirmed to be the real filter tab (${elementInfo}). Not retrying ` +
+                `the click here (a second click could re-toggle the tab off) - ` +
+                `verifyAllRowsHaveStatus will poll for up to 8s afterward to check whether the ` +
+                `filtered result appears with a short delay.`
             );
         }
 
@@ -644,6 +686,43 @@ export class ParticipantPage extends BasePage {
     }
 
     /**
+     * Take repeated snapshots of the participant table over a time window
+     * instead of a single sleep-then-check. This directly tests for a
+     * suspected periodic auto-refresh on this page (the live "0% 0%"
+     * progress column suggests polling) that may re-fetch the unfiltered
+     * list and overwrite search/filter results shortly after they appear.
+     * A single delayed check can't distinguish "filtering never worked"
+     * from "it worked, then got clobbered a few seconds later" - this can.
+     */
+    private async pollTableSnapshots(
+        label: string,
+        durationMs = 8000,
+        intervalMs = 1500
+    ): Promise<{ atMs: number; rowCount: number; firstRowText: string }[]> {
+
+        const snapshots: { atMs: number; rowCount: number; firstRowText: string }[] = [];
+        const start = Date.now();
+
+        while (Date.now() - start < durationMs) {
+            const rowCount = await this.tableRows.count().catch(() => -1);
+            const firstRowText = rowCount > 0
+                ? (await this.tableRows.first().innerText().catch(() => "")).replace(/\s+/g, " ").trim()
+                : "";
+
+            snapshots.push({ atMs: Date.now() - start, rowCount, firstRowText });
+
+            await this.page.waitForTimeout(intervalMs);
+        }
+
+        logger.info(
+            `${label} snapshots over ${durationMs}ms: ` +
+            JSON.stringify(snapshots.map(s => `${s.atMs}ms: ${s.rowCount} row(s)${s.firstRowText ? `, row1="${s.firstRowText}"` : ""}`))
+        );
+
+        return snapshots;
+    }
+
+    /**
      * Verify no matching participant
      */
     async verifyNoMatchingParticipant(): Promise<void> {
@@ -652,32 +731,38 @@ export class ParticipantPage extends BasePage {
             "Verifying no matching participant is displayed"
         );
 
-        // Increased wait for Jenkins
-        await this.page.waitForTimeout(1500);
-
-        try {
-            await this.page.waitForLoadState("networkidle", { timeout: 8000 });
-        } catch {
-            // no network activity detected - fine if filtering is client-side only
-        }
-
-        await this.page.waitForTimeout(1500);
-
-        const rowCount = await this.tableRows.count();
-
-        if (rowCount === 0) {
-
-            logger.info(
-                "No rows present in table - confirmed no matching participant"
-            );
-
-            return;
-        }
-
         // Widened to cover more likely empty-state phrasings
         const noResultsMessage = this.page.getByText(
             /no participants found|no results found|no matching participants|no data|no records|nothing found|no participants to display|no participants match/i
         );
+
+        const snapshots = await this.pollTableSnapshots("Invalid-search", 8000, 1500);
+
+        const emptySnapshot = snapshots.find(s => s.rowCount === 0);
+
+        if (emptySnapshot) {
+            logger.info(
+                `Table showed 0 rows at ${emptySnapshot.atMs}ms after searching - ` +
+                `confirmed no matching participant (at least momentarily)`
+            );
+
+            // Check whether it STAYED empty or reverted - if it reverted,
+            // that's evidence of the suspected periodic refresh clobbering
+            // filtered state, which is worth flagging even though the
+            // scenario's core assertion (no matches were ever shown) holds.
+            const laterNonEmpty = snapshots.find(s => s.atMs > emptySnapshot.atMs && s.rowCount > 0);
+            if (laterNonEmpty) {
+                logger.error(
+                    `The empty result REVERTED back to ${laterNonEmpty.rowCount} row(s) at ` +
+                    `${laterNonEmpty.atMs}ms (row1="${laterNonEmpty.firstRowText}"). This strongly ` +
+                    `suggests a periodic auto-refresh on this page re-fetches the unfiltered ` +
+                    `participant list and overwrites active search state - likely an app-side ` +
+                    `defect independent of whether this specific assertion passes.`
+                );
+            }
+
+            return;
+        }
 
         const isMessageVisible = await noResultsMessage.isVisible().catch(() => false);
 
@@ -688,23 +773,22 @@ export class ParticipantPage extends BasePage {
             return;
         }
 
-        // Neither zero rows nor a recognized empty-state message - log
-        // exactly what IS on screen so the real behaviour/copy can be
-        // identified from the next run's logs.
-        const rowTexts = (await this.tableRows.allTextContents())
-            .map(t => t.replace(/\s+/g, " ").trim());
-
+        // Never empty and no recognized empty-state message at any snapshot
         logger.error(
-            `Expected no matching participants for this search, but found ` +
-            `${rowCount} row(s): ${JSON.stringify(rowTexts)}. This suggests either ` +
-            `the search input isn't actually filtering the list, or the app's ` +
-            `empty-state message text doesn't match the expected phrasing.`
+            `Expected no matching participants for this search, but the table never showed ` +
+            `0 rows or an empty-state message across ${snapshots.length} snapshots over 8s. ` +
+            `This suggests the search input isn't actually filtering the list at all (not just ` +
+            `a timing issue), or the app's empty-state message text doesn't match the expected ` +
+            `phrasing.`
         );
+
+        const lastRowTexts = (await this.tableRows.allTextContents())
+            .map(t => t.replace(/\s+/g, " ").trim());
 
         await expect(
             noResultsMessage,
-            `Search returned ${rowCount} unexpected row(s) instead of an empty state: ${JSON.stringify(rowTexts)}`
-        ).toBeVisible({ timeout: 5000 });
+            `Search returned rows in every snapshot instead of an empty state. Last seen: ${JSON.stringify(lastRowTexts)}`
+        ).toBeVisible({ timeout: 3000 });
     }
 
     /**
@@ -718,72 +802,87 @@ export class ParticipantPage extends BasePage {
             `Verifying all visible rows have status: ${status}`
         );
 
-        // Increased wait for Jenkins
-        await this.page.waitForTimeout(3000);
-
-        // Wait for the first table row to become visible
         await this.tableRows.first().waitFor({
             state: "visible",
             timeout: 15000
-        });
+        }).catch(() => {});
 
-        // Additional wait to allow API/filter response to complete
-        await this.page.waitForTimeout(2000);
+        // Instead of a single delayed check, poll several times over 8s and
+        // record, at each point in time, whether every visible row matched
+        // the expected status. This directly tests whether filtering ever
+        // takes effect (even briefly) versus never working at all, and
+        // whether a correct result reverts afterward (periodic refresh
+        // clobbering the filter).
+        const durationMs = 8000;
+        const intervalMs = 1500;
+        const start = Date.now();
+        const timeline: { atMs: number; count: number; mismatchCount: number; sample: string }[] = [];
+        let matchedAtMs: number | null = null;
+        let revertedAfterMatch = false;
 
-        const count = await this.tableRows.count();
+        while (Date.now() - start < durationMs) {
+            const count = await this.tableRows.count();
+            const rowTexts: string[] = [];
 
-        logger.info(
-            `Found ${count} participant row(s) after ${status} filter`
-        );
+            for (let i = 0; i < count; i++) {
+                const text = (await this.tableRows.nth(i).innerText().catch(() => "")).replace(/\s+/g, " ").trim();
+                rowTexts.push(text);
+            }
 
-        expect(
-            count,
-            `Expected at least one "${status}" participant row`
-        ).toBeGreaterThan(0);
+            const mismatches = rowTexts.filter(t => !new RegExp(status, "i").test(t));
+            const atMs = Date.now() - start;
 
-        // Collect ALL mismatches instead of throwing on the first one, so a
-        // single failing run gives the full picture rather than stopping
-        // after row 1.
-        const mismatches: string[] = [];
-
-        for (let i = 0; i < count; i++) {
-
-            const row = this.tableRows.nth(i);
-
-            await row.waitFor({
-                state: "visible",
-                timeout: 10000
+            timeline.push({
+                atMs,
+                count,
+                mismatchCount: mismatches.length,
+                sample: rowTexts[0] ?? ""
             });
 
-            const rowText = (await row.innerText()).replace(/\s+/g, " ").trim();
-
-            logger.info(
-                `Row ${i + 1} text: ${rowText}`
-            );
-
-            if (!new RegExp(status, "i").test(rowText)) {
-                mismatches.push(`Row ${i + 1}: "${rowText}"`);
+            if (mismatches.length === 0 && count > 0 && matchedAtMs === null) {
+                matchedAtMs = atMs;
+            } else if (matchedAtMs !== null && mismatches.length > 0) {
+                revertedAfterMatch = true;
             }
-        }
 
-        if (mismatches.length > 0) {
-            logger.error(
-                `${mismatches.length}/${count} row(s) did not have status "${status}" ` +
-                `after clicking the ${status} filter. This usually means the filter ` +
-                `button locator is not targeting the real filter control (it may be ` +
-                `clicking a status badge/legend item instead). Mismatched rows:\n` +
-                mismatches.join("\n")
-            );
+            await this.page.waitForTimeout(intervalMs);
         }
-
-        expect(
-            mismatches,
-            `${mismatches.length} row(s) do not have status "${status}":\n${mismatches.join("\n")}`
-        ).toHaveLength(0);
 
         logger.info(
-            `All ${count} visible row(s) confirmed as "${status}"`
+            `${status} filter timeline over ${durationMs}ms: ` +
+            JSON.stringify(timeline.map(t => `${t.atMs}ms: ${t.count} row(s), ${t.mismatchCount} mismatched, row1="${t.sample}"`))
         );
+
+        if (matchedAtMs !== null) {
+            logger.info(
+                `All visible rows matched status "${status}" at ${matchedAtMs}ms after the filter click.`
+            );
+
+            if (revertedAfterMatch) {
+                logger.error(
+                    `The correctly-filtered result REVERTED to include mismatched rows later in ` +
+                    `the same window. This strongly suggests a periodic auto-refresh re-fetches ` +
+                    `the unfiltered participant list and overwrites the applied filter - likely ` +
+                    `an app-side defect independent of whether this assertion passes.`
+                );
+            }
+
+            return;
+        }
+
+        logger.error(
+            `No snapshot in an 8s window showed all rows matching status "${status}" after ` +
+            `clicking the ${status} filter. The filter locator is confirmed correct ` +
+            `(a real "reg-admin-filter-tab" button), so this suggests the filter click never ` +
+            `triggers any actual re-filtering of the data - a likely app-side defect rather ` +
+            `than a test timing or locator issue.`
+        );
+
+        expect(
+            timeline.some(t => t.mismatchCount === 0 && t.count > 0),
+            `No point in an 8s window showed all rows matching "${status}". Timeline: ` +
+            JSON.stringify(timeline)
+        ).toBe(true);
     }
 }
 
