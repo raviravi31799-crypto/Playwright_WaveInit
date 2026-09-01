@@ -1,4 +1,3 @@
-```gherkin
 @Subha
 Feature: Create Participant Account in Admin Module - Subhashree-26/08/2026
 
@@ -149,4 +148,3 @@ Scenario Outline: Verify admin can filter participants by Rejected status
     Examples:
         | fullName | email          | phone      | status           | password |
         | James    | james@x.com    | 9876543218 | Pending Approval | Pass@123 |
-```
