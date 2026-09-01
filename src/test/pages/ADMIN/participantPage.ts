@@ -98,19 +98,27 @@ export class ParticipantPage extends BasePage {
         );
 
         // Status filter buttons
+        // NOTE: not using exact:true here - CI diagnostics confirmed the
+        // tab's accessible name concatenates a live count badge with no
+        // separator (e.g. "Approved4", "Pending3", "Rejected3"), and that
+        // count appears to populate asynchronously. An exact match on the
+        // bare word fails outright once the count is present, and can even
+        // race depending on whether the count has loaded yet. Substring
+        // (case-insensitive) matching is stable against both the bare word
+        // and any count/format that gets appended.
         this.approvedFilterBtn = page.getByRole(
             "button",
-            { name: "Approved", exact: true }
+            { name: "Approved" }
         );
 
         this.pendingFilterBtn = page.getByRole(
             "button",
-            { name: "Pending", exact: true }
+            { name: "Pending" }
         );
 
         this.rejectedFilterBtn = page.getByRole(
             "button",
-            { name: "Rejected", exact: true }
+            { name: "Rejected" }
         );
 
         // Participant table rows
