@@ -94,9 +94,9 @@ Scenario Outline: Verify admin can search participant by email
     Then the participant with email "<email>" should be displayed
 
     Examples:
-        | email        |
-        | rachel@x.com |
-        | daniel@x.com |
+        | email          |
+        | rachel@x.com   |
+        | michael@x.com  |
 
 
 @SearchInvalidParticipant

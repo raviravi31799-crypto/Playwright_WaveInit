@@ -521,10 +521,40 @@ export class ParticipantPage extends BasePage {
             `Waiting for ${status} filter button`
         );
 
-        await filterBtn.waitFor({
-            state: "visible",
-            timeout: 15000
+        // Some scenarios click a filter tab immediately after submitting
+        // the Add Participant form, without first confirming the modal
+        // closed (unlike scenarios that explicitly check "the Add
+        // Participant form should be closed"). If the modal/backdrop is
+        // still animating away, it can visually sit on top of the filter
+        // tabs and block them from registering as visible. Give any
+        // lingering modal a chance to close first.
+        await this.modal.waitFor({ state: "hidden", timeout: 8000 }).catch(() => {
+            logger.info(
+                `Add-Participant modal did not report hidden within 8s before ` +
+                `clicking the ${status} filter (it may simply not have been open) - continuing`
+            );
         });
+
+        try {
+            await filterBtn.waitFor({
+                state: "visible",
+                timeout: 15000
+            });
+        } catch (err) {
+            const modalStillVisible = await this.modal.isVisible().catch(() => false);
+            const allButtonTexts = (await this.page.locator("button").allTextContents().catch(() => []))
+                .map(t => t.trim())
+                .filter(Boolean);
+
+            logger.error(
+                `${status} filter button never became visible within 15s. ` +
+                `Add-Participant modal still visible: ${modalStillVisible}. ` +
+                `All button labels currently on page (${allButtonTexts.length}): ` +
+                `${JSON.stringify(allButtonTexts)}`
+            );
+
+            throw err;
+        }
 
         // Wait for the page's own initial (unfiltered) participant list to
         // finish loading before touching the filter tab.
