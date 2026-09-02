@@ -4,7 +4,7 @@ Feature: Trainer Quiz Management
 Background:
     Given the user navigates to the application
     When the user clicks on trainer in the login menu
-    When the user enters trainer "wavene20@gmail.com" and "sriram123@"
+    When the user enters trainer "rahul@gmail.com" and "rahul1234"
     And the user clicks on sign in
     When The trainer opens the "My Trainings" menu
     And The trainer selects the first course
