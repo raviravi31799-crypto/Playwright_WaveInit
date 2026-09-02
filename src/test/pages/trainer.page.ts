@@ -117,6 +117,7 @@ export class TrainerPage extends BasePage {
         expect(courses.length).toBeGreaterThan(0);
         logger.info(`Courses after Oldest sort: ${JSON.stringify(courses)}`);
     }
+ 
 }
 
 export default TrainerPage;
