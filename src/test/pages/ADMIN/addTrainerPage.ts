@@ -18,6 +18,18 @@ export class AddTrainerPage extends BasePage {
     readonly confirmPasswordInput: Locator;
     readonly resetBtn: Locator;
     readonly createTrainerBtn: Locator;
+    readonly backToTrainersBtn: Locator;
+    readonly searchTrainersInput: Locator;
+
+    // Trainer list / row-level actions
+    readonly selectAllCheckbox: Locator;
+
+    // Delete confirmation dialog
+    readonly confirmDeleteBtn: Locator;
+    readonly cancelDeleteBtn: Locator;
+
+    // Trainer details view
+    readonly trainerDetailsPanel: Locator;
 
     // Stores the last message displayed by the application
     private lastAlertMessage: string | null = null;
@@ -79,6 +91,77 @@ export class AddTrainerPage extends BasePage {
             "button",
             { name: "Create Trainer", exact: true }
         );
+
+        // Shown on the Create Trainer form after submission
+        this.backToTrainersBtn = page.getByRole(
+            "button",
+            { name: /back to trainers/i }
+        );
+
+        // Search box on the Trainers list page
+        this.searchTrainersInput = page.getByPlaceholder(
+            "Search trainers..."
+        );
+
+        // "Select All" checkbox lives in the table header (no visible label)
+        this.selectAllCheckbox = page.locator(
+            "table.reg-admin-table thead input[type='checkbox']"
+        );
+
+        // Delete confirmation dialog buttons
+        this.confirmDeleteBtn = page.getByRole(
+            "button",
+            { name: /^(confirm|delete|yes)$/i }
+        );
+
+        this.cancelDeleteBtn = page.getByRole(
+            "button",
+            { name: /^(cancel|no)$/i }
+        );
+
+        // Trainer details panel/modal shown by the View action
+        // (a plain div with no role="dialog" attribute)
+        this.trainerDetailsPanel = page.locator(
+            "div.tpm-modal"
+        );
+    }
+
+    /**
+     * Click "Back to Trainers" (shown on the Create Trainer form
+     * after a trainer is successfully created)
+     */
+    async clickBackToTrainers(): Promise<void> {
+
+        await this.click(
+            this.backToTrainersBtn,
+            "Back to Trainers Button"
+        );
+    }
+
+    /**
+     * Search the trainer list so a freshly created trainer
+     * is visible/scoped before acting on its row
+     */
+    async searchTrainer(query: string): Promise<void> {
+
+        await this.sendKeys(
+            this.searchTrainersInput,
+            query,
+            "Search Trainers"
+        );
+    }
+
+    /**
+     * Locate the trainer row by the email that identifies it.
+     * Uses a text filter (not getByRole) because a <tr> does not
+     * get an accessible name from its content, so role-based
+     * name matching on rows never resolves.
+     */
+    getTrainerRow(email: string): Locator {
+
+        return this.page
+            .locator("table.reg-admin-table tbody tr")
+            .filter({ hasText: email });
     }
 
     /**
@@ -462,6 +545,145 @@ export class AddTrainerPage extends BasePage {
         }
 
         return "";
+    }
+
+    /**
+     * Click the View icon for a specific trainer's row
+     */
+    async clickViewIcon(email: string): Promise<void> {
+
+        const row = this.getTrainerRow(email);
+
+        const viewIcon = row.locator(
+            "button[title='View Details']"
+        );
+
+        await this.click(
+            viewIcon,
+            "View Trainer Icon"
+        );
+    }
+
+    /**
+     * Click the Delete icon for a specific trainer's row
+     */
+    async clickDeleteIcon(email: string): Promise<void> {
+
+        const row = this.getTrainerRow(email);
+
+        const deleteIcon = row.locator(
+            "button[title='Delete Trainer']"
+        );
+
+        await this.click(
+            deleteIcon,
+            "Delete Trainer Icon"
+        );
+    }
+
+    /**
+     * Confirm deletion in the confirmation dialog
+     */
+    async confirmDeletion(): Promise<void> {
+
+        await this.click(
+            this.confirmDeleteBtn,
+            "Confirm Deletion Button"
+        );
+    }
+
+    /**
+     * Cancel deletion in the confirmation dialog
+     */
+    async cancelDeletion(): Promise<void> {
+
+        await this.click(
+            this.cancelDeleteBtn,
+            "Cancel Deletion Button"
+        );
+    }
+
+    /**
+     * Click the "Select All" checkbox in the trainer list
+     */
+    async clickSelectAllCheckbox(): Promise<void> {
+
+        await this.click(
+            this.selectAllCheckbox,
+            "Select All Checkbox"
+        );
+    }
+
+    /**
+     * Verify the trainer details panel/modal is displayed
+     */
+    async verifyTrainerDetailsDisplayed(): Promise<void> {
+
+        await expect(
+            this.trainerDetailsPanel
+        ).toBeVisible();
+
+        await expect(
+            this.trainerDetailsPanel.locator(".tpm-title")
+        ).toHaveText("Trainer Profile");
+    }
+
+    /**
+     * Verify a trainer row is no longer present in the list
+     */
+    async verifyTrainerRemoved(email: string): Promise<void> {
+
+        await expect(
+            this.getTrainerRow(email)
+        ).toHaveCount(0);
+    }
+
+    /**
+     * Verify a trainer row is still present in the list
+     */
+    async verifyTrainerPresent(email: string): Promise<void> {
+
+        await expect(
+            this.getTrainerRow(email)
+        ).toBeVisible();
+    }
+
+    /**
+     * Verify every row checkbox in the trainer list is checked
+     */
+    async verifyAllTrainersSelected(): Promise<void> {
+
+        const rowCheckboxes = this.page.locator(
+            "table.reg-admin-table tbody input[type='checkbox']"
+        );
+
+        const count = await rowCheckboxes.count();
+
+        for (let i = 0; i < count; i++) {
+
+            await expect(
+                rowCheckboxes.nth(i)
+            ).toBeChecked();
+        }
+    }
+
+    /**
+     * Verify every row checkbox in the trainer list is unchecked
+     */
+    async verifyAllTrainersUnselected(): Promise<void> {
+
+        const rowCheckboxes = this.page.locator(
+            "table.reg-admin-table tbody input[type='checkbox']"
+        );
+
+        const count = await rowCheckboxes.count();
+
+        for (let i = 0; i < count; i++) {
+
+            await expect(
+                rowCheckboxes.nth(i)
+            ).not.toBeChecked();
+        }
     }
 
     /**

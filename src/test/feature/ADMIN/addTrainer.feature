@@ -39,3 +39,34 @@ Scenario: Verify trainer creation fails when Password and Confirm Password do no
     And the admin fills all trainer details with mismatched confirm password
     And the admin clicks the Create Trainer button
     Then the admin should see the message "Passwords do not match"
+
+@ViewTrainerDetails
+Scenario: Verify admin can view trainer details
+    Given the admin has created a new trainer with fresh data
+    When the admin clicks the View icon for a trainer
+    Then the trainer details should be displayed
+
+@DeleteTrainer
+Scenario: Verify admin can delete a trainer
+    Given the admin has created a new trainer with fresh data
+    When the admin clicks the Delete icon for a trainer
+    And the admin confirms the deletion
+    Then the trainer should be removed from the trainer list
+
+@CancelDeleteTrainer
+Scenario: Verify trainer is not deleted when admin cancels deletion
+    Given the admin has created a new trainer with fresh data
+    When the admin clicks the Delete icon for a trainer
+    And the admin cancels the deletion
+    Then the trainer should remain in the trainer list
+
+@SelectAllTrainers
+Scenario: Verify admin can select all trainers
+    When the admin clicks the Select All checkbox
+    Then all trainers in the list should be selected
+
+@UnselectAllTrainers
+Scenario: Verify admin can unselect all trainers
+    Given all trainers are selected
+    When the admin clicks the Select All checkbox
+    Then all trainers should be unselected    
