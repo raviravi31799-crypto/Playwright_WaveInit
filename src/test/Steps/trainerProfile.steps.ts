@@ -3,6 +3,10 @@ import { CustomWorld } from "../world/world";
 import { logger } from "../utils/logger";
 
 
+// ==================================================
+// TRAINER LOGIN
+// ==================================================
+
 Given(
     "the trainer logs in with valid credentials for profile",
     async function (this: CustomWorld) {
@@ -12,11 +16,11 @@ Given(
         );
 
         await this.homePage.enterEmail(
-            "wavene20@gmail.com"
+            "rahul@gmail.com"
         );
 
         await this.homePage.enterPassword(
-            "sriram123@"
+            "rahul1234"
         );
 
         await this.homePage.clickSignIn();
@@ -29,6 +33,10 @@ Given(
     }
 );
 
+
+// ==================================================
+// OPEN MY PROFILE
+// ==================================================
 
 When(
     "the trainer opens My Profile",
@@ -50,6 +58,10 @@ When(
     }
 );
 
+
+// ==================================================
+// ADD SKILL
+// ==================================================
 
 When(
     "the trainer clicks on Add Skill",
@@ -112,6 +124,112 @@ Then(
 
         logger.info(
             `Skill "${skill}" verification passed`
+        );
+    }
+);
+
+
+// ==================================================
+// INVALID EXPERIENCE
+// ==================================================
+
+When(
+    "the trainer clicks on Add Experience",
+    async function (this: CustomWorld) {
+
+        logger.info(
+            "Clicking Add Experience"
+        );
+
+        await this.trainerProfilePage
+            .clickAddExperience();
+    }
+);
+
+
+When(
+    "the trainer enters company name {string}",
+    async function (
+        this: CustomWorld,
+        companyName: string
+    ) {
+
+        logger.info(
+            `Entering company name: "${companyName}"`
+        );
+
+        await this.trainerProfilePage
+            .enterCompanyName(companyName);
+    }
+);
+
+
+When(
+    "the trainer enters role {string}",
+    async function (
+        this: CustomWorld,
+        role: string
+    ) {
+
+        logger.info(
+            `Entering role: "${role}"`
+        );
+
+        await this.trainerProfilePage
+            .enterRole(role);
+    }
+);
+
+
+When(
+    "the trainer enters start date {string}",
+    async function (
+        this: CustomWorld,
+        startDate: string
+    ) {
+
+        logger.info(
+            `Entering start date: "${startDate}"`
+        );
+
+        await this.trainerProfilePage
+            .enterStartDate(startDate);
+    }
+);
+
+
+When(
+    "the trainer clicks on Add Experience button",
+    async function (this: CustomWorld) {
+
+        logger.info(
+            "Clicking Add Experience submit button"
+        );
+
+        await this.trainerProfilePage
+            .clickAddExperienceSubmit();
+    }
+);
+
+
+Then(
+    "the validation message should be displayed for {string}",
+    async function (
+        this: CustomWorld,
+        missingField: string
+    ) {
+
+        logger.info(
+            `Verifying required validation message for: "${missingField}"`
+        );
+
+        await this.trainerProfilePage
+            .verifyExperienceValidation(
+                missingField
+            );
+
+        logger.info(
+            `Required validation verified for: "${missingField}"`
         );
     }
 );

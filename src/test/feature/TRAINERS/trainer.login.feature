@@ -12,7 +12,7 @@ Feature: Verify Trainer login functionality in WaveInit
 
         Examples:
             | username               | password      | expected result |
-            | wavene20@gmail.com      | sriram123@    | success         |
+            | rahul@gmail.com      | rahul1234    | success         |
             | wrongwavene20@gmail.com | sriram123@    | invalid         |
             | wavene20@gmail.com      | wrongsriram123@ | invalid         |
             |                        |               | required        |
