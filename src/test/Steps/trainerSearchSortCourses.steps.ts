@@ -4,8 +4,8 @@ import { logger } from "../utils/logger";
 
 Given("the trainer logs in with valid credentials", async function (this: CustomWorld) {
     logger.info("Logging in as Trainer with valid credentials");
-    await this.homePage.enterEmail("wavene20@gmail.com");
-    await this.homePage.enterPassword("sriram123@");
+    await this.homePage.enterEmail("rahul@gmail.com ");
+    await this.homePage.enterPassword("rahul1234");
     await this.homePage.clickSignIn();
     await this.trainerPage.verifyTrainerLoginSuccess();
     await this.trainerPage.clickMyTrainings();
