@@ -28,7 +28,7 @@ Feature: Verify register functionality in WaveInit
 
         Examples:
             | first name | last name | email                 | number     | password   | confirm password | error message                             |
-            | Sriram     | Titoo     | titooram123@gmail.com | 6381102874 | sriram123@ | sriram123@       | An account with this email already exists |
+            | Sriram     | Titoo     | titooram123@gmail.com | 6381102874 | Sriram123@ | Sriram123@       | An account with this email already exists |
 
     @negative @password_mismatch
     Scenario Outline: Verify error message when password and confirm password do not match
@@ -52,7 +52,7 @@ Feature: Verify register functionality in WaveInit
 
         Examples:
             | first name | last name | email           | number     | password   | confirm password | error message               |
-            | Sriram     | Titoo     | tit23@gmail.com | 6381102874 | sriram123@ | sriram123@       | You must agree to the terms |
+            | Sriram     | Titoo     | tit23@gmail.com | 6381102874 | Sriram123@ | Sriram123@       | You must agree to the terms |
 
     @negative @empty_fields
     Scenario: Verify validation error when mandatory fields are left empty using excel

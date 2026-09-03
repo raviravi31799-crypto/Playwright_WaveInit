@@ -10,11 +10,13 @@ import type { TrainerProfilePage } from "../pages/trainerProfile.page";
 import { logger } from "../utils/logger";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
 import { AddTrainerPage } from "../pages/ADMIN/addTrainerPage";
+import { QuizPage } from "../pages/TRAINER/courseQuiz";
 import { ParticipantPage } from "../pages/ADMIN/participantPage";
 import { ScheduleInterviewPage } from '../pages/ADMIN/Interviewpage';
 
 
 import type { ParticipantProfilePage } from "../pages/participantProfile.page";
+import type { MyCoursesPage } from "../pages/myCourses.page";
 
 export class CustomWorld extends World {
     browser!: Browser;
@@ -29,10 +31,12 @@ export class CustomWorld extends World {
     loginPage!: LoginPage;
     addTrainingPage!: AddTrainingPage;
     addTrainerPage!: AddTrainerPage;
+    quizPage!: QuizPage;
     participantPage!: ParticipantPage;
     Participantspage!:ParticipantsPage;
     interviewpage!:ScheduleInterviewPage;
     participantProfilePage!: ParticipantProfilePage;
+    myCoursesPage!: MyCoursesPage;
 
 
     constructor(options: IWorldOptions) {

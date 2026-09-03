@@ -11,6 +11,7 @@ import { logger } from "../utils/logger";
 import path from "path";
 import fs from "fs";
 import { LoginPage } from "../pages/ADMIN/Loginpage";
+import { QuizPage } from "../pages/TRAINER/courseQuiz";
 import { ScheduleInterviewPage } from "../pages/ADMIN/Interviewpage";
 
 let browser: Browser;
@@ -59,6 +60,7 @@ Before(async function (this: CustomWorld, scenario) {
     this.trainerPage = new TrainerPage(this.page);
     this.trainerProfilePage = new TrainerProfilePage(this.page);
     this.loginPage = new LoginPage(this.page);
+    this.quizPage = new QuizPage(this.page);
     this.interviewpage=new ScheduleInterviewPage(this.page);
 });
 

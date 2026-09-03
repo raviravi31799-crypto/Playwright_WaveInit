@@ -1,0 +1,50 @@
+{
+  
+  "variables": {
+    "quizTitle": "Variables Quiz",
+    "questions": [
+      {
+        "questionText": "Which keyword is used to declare a constant in JavaScript?",
+        "options": ["var", "let", "const", "static"],
+        "correctAnswer": "const"
+      },
+      {
+        "questionText": "Which keyword allows a variable to be reassigned?",
+        "options": ["const", "let", "fixed", "static"],
+        "correctAnswer": "let"
+      },
+      {
+        "questionText": "Which keyword has function scope?",
+        "options": ["let", "const", "var", "define"],
+        "correctAnswer": "var"
+      }
+    ]
+  },
+
+  
+  "arrays": {
+    "quizTitle": "Arrays Quiz",
+    "questions": [
+      {
+        "questionText": "Which method adds an element to the end of an array?",
+        "options": ["push()", "pop()", "shift()", "slice()"],
+        "correctAnswer": "push()"
+      },
+      {
+        "questionText": "Which property returns the number of elements in an array?",
+        "options": ["size", "length", "count", "index"],
+        "correctAnswer": "length"
+      },
+      {
+        "questionText": "Which method removes the last element from an array?",
+        "options": ["push()", "shift()", "pop()", "splice()"],
+        "correctAnswer": "pop()"
+      },
+      {
+        "questionText": "What is the index of the first element in a JavaScript array?",
+        "options": ["0", "1", "-1", "first"],
+        "correctAnswer": "0"
+      }
+    ]
+  }
+}
