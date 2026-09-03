@@ -36,6 +36,33 @@ export class QuizPage extends BasePage {
 
 
     // ==========================================
+    // Edit Quiz Locators
+    // ==========================================
+
+    private editQuizModalTitle: Locator;
+
+    private saveChangesButton: Locator;
+
+    private closeEditModalButton: Locator;
+
+
+    // ==========================================
+    // Publish Quiz Locators
+    // ==========================================
+
+    private confirmPublishButton: Locator;
+
+
+    // ==========================================
+    // Preview Quiz Locators
+    // ==========================================
+
+    private previewModalHeading: Locator;
+
+    private closePreviewModalButton: Locator;
+
+
+    // ==========================================
     // Constructor
     // ==========================================
 
@@ -86,6 +113,42 @@ export class QuizPage extends BasePage {
         this.quizTable = page.locator(
             "table.cqt-table"
         );
+
+        this.editQuizModalTitle = page.getByRole(
+            "heading",
+            {
+                name: "Edit quiz"
+            }
+        );
+
+        this.saveChangesButton = page.getByRole(
+            "button",
+            {
+                name: "Save Changes"
+            }
+        );
+
+        this.closeEditModalButton = page.locator(
+            ".cqt-modal-close, button:has(svg.lucide-x)"
+        ).first();
+
+        this.confirmPublishButton = page.getByRole(
+            "button",
+            {
+                name: "Publish"
+            }
+        );
+
+        this.previewModalHeading = page.getByRole(
+            "heading",
+            {
+                name: "Quiz Preview"
+            }
+        );
+
+        this.closePreviewModalButton = page.locator(
+            ".cqt-modal-close, button:has(svg.lucide-x)"
+        ).first();
     }
 
 
@@ -129,6 +192,26 @@ export class QuizPage extends BasePage {
             this.aiQuizTab,
             "AI Quiz"
         );
+
+        // The quiz page loads its data asynchronously after the tab is clicked.
+        // Wait until the quiz section/table is actually rendered.
+        await expect.poll(
+            async () => {
+                const url = this.page.url();
+                const tableCount = await this.quizTable.count();
+
+                return url.includes("section=quizzes") && tableCount > 0;
+            },
+            {
+                timeout: 30000,
+                message: "AI Quiz section did not finish loading."
+            }
+        ).toBe(true);
+
+        await this.quizTable.waitFor({
+            state: "visible",
+            timeout: 30000
+        });
     }
 
 
@@ -338,17 +421,15 @@ export class QuizPage extends BasePage {
     ): Locator {
 
         return this.page
-            .locator(
-                "table.cqt-table tbody tr"
+            .getByText(
+                quizTitle,
+                {
+                    exact: true
+                }
             )
-            .filter({
-                has: this.page.getByText(
-                    quizTitle,
-                    {
-                        exact: true
-                    }
-                )
-            });
+            .locator(
+                "xpath=ancestor::tr"
+            );
     }
 
 
@@ -411,15 +492,180 @@ export class QuizPage extends BasePage {
 
 
     // ==========================================
+    // Delete Quiz Button Locator — tries several
+    // reasonable selectors for the trash icon
+    // ==========================================
+
+    private deleteButton(
+        quizTitle: string
+    ): Locator {
+
+        const row = this.quizRow(quizTitle);
+
+        return row.locator(
+            "button[title=\"Delete\"]"
+        );
+    }
+
+
+    // ==========================================
     // Delete Quiz
     // ==========================================
 
-    async deleteQuiz(
+    async deleteQuiz(quizTitle: string): Promise<void> {
+
+        logger.info(
+            `Deleting existing quiz: ${quizTitle}`
+        );
+
+        const rows = this.quizRows(quizTitle);
+
+        // The AI Quiz table is rendered first and its rows are populated
+        // asynchronously. Do not check count immediately after navigation.
+        await expect.poll(
+            async () => await rows.count(),
+            {
+                timeout: 30000,
+                message:
+                    `Quiz "${quizTitle}" did not appear in the list within 30 seconds.`
+            }
+        ).toBeGreaterThan(0);
+
+        const rowCountBefore = await rows.count();
+
+        logger.info(
+            `Found ${rowCountBefore} quiz row(s) with title "${quizTitle}".`
+        );
+
+        const row = rows.last();
+
+        await row.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        const deleteBtn = this.deleteButton(quizTitle);
+
+        if (await deleteBtn.count() === 0) {
+            const html = await row.innerHTML();
+            logger.error(`No delete button found. Row HTML: ${html}`);
+            throw new Error(
+                `Delete button not found for quiz "${quizTitle}".`
+            );
+        }
+
+        await this.click(
+            deleteBtn.first(),
+            "Delete Quiz"
+        );
+
+        const confirmDeleteButton = this.page.getByRole(
+            "button",
+            { name: "Delete Permanently" }
+        );
+
+        await confirmDeleteButton.waitFor({
+            state: "visible",
+            timeout: 15000
+        });
+
+        await this.click(
+            confirmDeleteButton,
+            "Delete Permanently"
+        );
+
+        const expectedCount = rowCountBefore - 1;
+
+        try {
+            await expect.poll(
+                async () => await this.quizRows(quizTitle).count(),
+                {
+                    timeout: 15000,
+                    message:
+                        `Expected "${quizTitle}" count to change from ` +
+                        `${rowCountBefore} to ${expectedCount}.`
+                }
+            ).toBe(expectedCount);
+        } catch {
+            logger.info(
+                `Quiz list did not update immediately. Reloading once.`
+            );
+
+            await this.reload();
+
+            await this.quizTable.waitFor({
+                state: "visible",
+                timeout: 30000
+            });
+
+            await expect.poll(
+                async () => await this.quizRows(quizTitle).count(),
+                {
+                    timeout: 15000,
+                    message:
+                        `After reload, "${quizTitle}" count should be ${expectedCount}.`
+                }
+            ).toBe(expectedCount);
+        }
+
+        logger.info(
+            `Quiz "${quizTitle}" deleted successfully.`
+        );
+    }
+
+    // ==========================================
+    // Verify Quiz Not Present
+    // ==========================================
+
+    async verifyQuizNotPresent(
+        quizTitle: string
+    ): Promise<void> {
+        logger.info(
+            `Verifying quiz is no longer available: ${quizTitle}`
+        );
+
+        await expect(
+            this.quizRows(quizTitle)
+        ).toHaveCount(0, { timeout: 10000 });
+
+        logger.info(
+            `Quiz "${quizTitle}" is no longer available.`
+        );
+    }
+
+
+    // ==========================================
+    // Edit Quiz Row Locator — tries several
+    // reasonable selectors for the pencil icon
+    // ==========================================
+
+    private editButton(
+        quizTitle: string
+    ): Locator {
+
+        const row = this.quizRow(quizTitle);
+
+        return row
+            .locator(".cqt-action-btn--edit")
+            .or(row.locator("button[aria-label='Edit' i]"))
+            .or(row.locator("button[title='Edit' i]"))
+            .or(row.locator("button:has(svg.lucide-pencil)"))
+            .or(row.locator("button:has(svg.lucide-edit)"))
+            .or(row.locator("button:has(svg.lucide-square-pen)"))
+            .or(row.locator("[data-testid='edit-quiz']"));
+    }
+
+
+    // ==========================================
+    // Open Edit Quiz Modal — with diagnostics
+    // ==========================================
+
+    async openEditQuiz(
         quizTitle: string
     ): Promise<void> {
 
         logger.info(
-            `Deleting quiz: ${quizTitle}`
+            `Opening Edit Quiz modal: ${quizTitle}`
         );
 
         const row =
@@ -429,63 +675,300 @@ export class QuizPage extends BasePage {
             state: "visible"
         });
 
+        const editBtn = this.editButton(quizTitle);
 
-        const deleteButton =
-            row.locator(
-                ".cqt-action-btn--delete"
+        const count = await editBtn.count();
+
+        if (count === 0) {
+
+            logger.error(
+                `No edit button found in row for "${quizTitle}". ` +
+                `Dumping row HTML for debugging.`
             );
 
+            const html = await row.innerHTML();
+            logger.error(`Row HTML: ${html}`);
 
-        await this.click(
-            deleteButton,
-            "Delete Quiz"
-        );
-
-
-        const confirmDeleteButton =
-            this.page.getByRole(
-                "button",
-                {
-                    name: "Delete Permanently"
-                }
+            throw new Error(
+                `Edit button not found for quiz "${quizTitle}". ` +
+                `See logged row HTML above to fix the selector.`
             );
-
-
-        await confirmDeleteButton.waitFor({
-            state: "visible"
-        });
-
+        }
 
         await this.click(
-            confirmDeleteButton,
-            "Delete Permanently"
+            editBtn.first(),
+            "Edit Quiz"
         );
 
-
-        await row.waitFor({
-            state: "detached"
+        await this.editQuizModalTitle.waitFor({
+            state: "visible",
+            timeout: 15000
         });
     }
 
 
     // ==========================================
-    // Verify Quiz Not Present
+    // Edit Question Text (reuses questionField)
     // ==========================================
 
-    async verifyQuizNotPresent(
+    async editQuestionText(
+        index: number,
+        newText: string
+    ): Promise<void> {
+
+        logger.info(
+            `Editing question ${index + 1} text to: ${newText}`
+        );
+
+        const question =
+            this.questionField(index);
+
+        await question.waitFor({
+            state: "visible"
+        });
+
+        await this.clearAndType(
+            question,
+            newText,
+            `Question ${index + 1}`
+        );
+    }
+
+
+    // ==========================================
+    // Read Question Text From Modal
+    // ==========================================
+
+    async getQuestionTextInModal(
+        index: number
+    ): Promise<string> {
+
+        const question =
+            this.questionField(index);
+
+        await question.waitFor({
+            state: "visible"
+        });
+
+        return await this.getInputValue(
+            question,
+            `Question ${index + 1}`
+        );
+    }
+
+
+    // ==========================================
+    // Save Edit Changes
+    // ==========================================
+
+    async saveEditChanges(): Promise<void> {
+
+        logger.info(
+            "Saving quiz changes"
+        );
+
+        await this.click(
+            this.saveChangesButton,
+            "Save Changes"
+        );
+
+        await this.editQuizModalTitle.waitFor({
+            state: "hidden"
+        });
+
+        await this.quizTable.waitFor({
+            state: "visible"
+        });
+    }
+
+
+    // ==========================================
+    // Close Edit Modal (no save)
+    // ==========================================
+
+    async closeEditModal(): Promise<void> {
+
+        logger.info(
+            "Closing Edit Quiz modal"
+        );
+
+        await this.click(
+            this.closeEditModalButton,
+            "Close Edit Modal"
+        );
+
+        await this.editQuizModalTitle.waitFor({
+            state: "hidden"
+        });
+    }
+
+
+    // ==========================================
+    // Publish Quiz Row Locator — tries several
+    // reasonable selectors for the publish icon
+    // ==========================================
+
+    private publishButton(
+        quizTitle: string
+    ): Locator {
+
+        const row = this.quizRow(quizTitle);
+
+        return row
+            .locator(".cqt-action-btn--publish")
+            .or(row.locator("button[aria-label='Publish' i]"))
+            .or(row.locator("button[title='Publish' i]"))
+            .or(row.locator("button:has(svg.lucide-send)"))
+            .or(row.locator("button:has(svg.lucide-share)"))
+            .or(row.locator("[data-testid='publish-quiz']"));
+    }
+
+
+    // ==========================================
+    // Publish Quiz — with diagnostics
+    // ==========================================
+
+    async publishQuiz(
         quizTitle: string
     ): Promise<void> {
 
         logger.info(
-            `Verifying quiz is removed: ${quizTitle}`
+            `Publishing quiz: ${quizTitle}`
         );
 
-        const rows =
-            this.quizRows(quizTitle);
+        const row =
+            this.quizRow(quizTitle);
 
-        await expect(
-            rows
-        ).toHaveCount(0);
+        await row.waitFor({
+            state: "visible"
+        });
+
+        const publishBtn = this.publishButton(quizTitle);
+
+        const count = await publishBtn.count();
+
+        if (count === 0) {
+
+            const html = await row.innerHTML();
+            logger.error(`No publish button found. Row HTML: ${html}`);
+
+            throw new Error(
+                `Publish button not found for quiz "${quizTitle}". ` +
+                `See logged row HTML above to fix the selector.`
+            );
+        }
+
+        await this.click(
+            publishBtn.first(),
+            "Publish Quiz"
+        );
+
+        await this.confirmPublishButton.waitFor({
+            state: "visible",
+            timeout: 15000
+        });
+
+        await this.click(
+            this.confirmPublishButton,
+            "Confirm Publish"
+        );
+
+        await this.confirmPublishButton.waitFor({
+            state: "hidden",
+            timeout: 15000
+        });
+    }
+
+
+    // ==========================================
+    // Preview Quiz Row Locator — tries several
+    // reasonable selectors for the eye icon
+    // ==========================================
+
+    private previewButton(
+        quizTitle: string
+    ): Locator {
+
+        const row = this.quizRow(quizTitle);
+
+        return row
+            .locator(".cqt-action-btn--preview")
+            .or(row.locator("button[aria-label='Preview' i]"))
+            .or(row.locator("button[title='Preview' i]"))
+            .or(row.locator("button:has(svg.lucide-eye)"))
+            .or(row.locator("[data-testid='preview-quiz']"));
+    }
+
+
+    // ==========================================
+    // Open / Close Preview Quiz Modal — with
+    // diagnostics on open
+    // ==========================================
+
+    async openPreview(
+        quizTitle: string
+    ): Promise<void> {
+
+        logger.info(
+            `Opening Preview Quiz modal: ${quizTitle}`
+        );
+
+        const row =
+            this.quizRow(quizTitle);
+
+        await row.waitFor({
+            state: "visible"
+        });
+
+        const previewBtn = this.previewButton(quizTitle);
+
+        const count = await previewBtn.count();
+
+        if (count === 0) {
+
+            const html = await row.innerHTML();
+            logger.error(`No preview button found. Row HTML: ${html}`);
+
+            throw new Error(
+                `Preview button not found for quiz "${quizTitle}". ` +
+                `See logged row HTML above to fix the selector.`
+            );
+        }
+
+        await this.click(
+            previewBtn.first(),
+            "Preview Quiz"
+        );
+
+        await this.previewModalHeading.waitFor({
+            state: "visible",
+            timeout: 15000
+        });
+    }
+
+
+    async getPreviewQuestionCount(): Promise<number> {
+
+        return await this.page
+            .locator(".cqt-preview-question")
+            .count();
+    }
+
+
+    async closePreview(): Promise<void> {
+
+        logger.info(
+            "Closing Preview Quiz modal"
+        );
+
+        await this.click(
+            this.closePreviewModalButton,
+            "Close Preview Modal"
+        );
+
+        await this.previewModalHeading.waitFor({
+            state: "hidden"
+        });
     }
 }
 
