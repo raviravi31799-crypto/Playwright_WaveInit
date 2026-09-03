@@ -22,7 +22,15 @@ Examples:
     | dataset   |
     | variables |
     | arrays    |
+@EditQuiz
+Scenario Outline: Verify trainer can edit an existing quiz
+    When The trainer edits the quiz using the "<dataset>" dataset
+    Then The trainer should see the updated quiz details for the "<dataset>" dataset
 
+Examples:
+    | dataset   |
+    | variables |
+    | arrays    |
 
 @deleteQuiz
 Scenario Outline: Verify trainer can delete existing quiz
@@ -32,4 +40,4 @@ Scenario Outline: Verify trainer can delete existing quiz
 Examples:
     | dataset   |
     | variables |
-    | arrays    |
+    | arrays|

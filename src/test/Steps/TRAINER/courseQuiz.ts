@@ -1,6 +1,7 @@
 import { When, Then } from "@cucumber/cucumber";
 import { CustomWorld } from "../../world/world";
 import quizData from "../../../../testdata/quizDataset.json";
+import { logger } from "../../utils/logger";
 
 
 // =====================================================
@@ -182,15 +183,16 @@ When(
             );
         }
 
-        // Delete only the existing quiz.
-        // This step does NOT create a quiz.
+        // If the quiz was edited, use the updated title.
+        // Otherwise use the original title.
+        const currentQuizTitle =
+            data.editData?.quizTitle || data.quizTitle;
+
         await this.quizPage.deleteQuiz(
-            data.quizTitle
+            currentQuizTitle
         );
     }
 );
-
-
 Then(
     'The quiz should no longer be available in the list for the {string} dataset',
     async function (
@@ -208,8 +210,100 @@ Then(
             );
         }
 
+        // Verify using the current title after edit.
+        const currentQuizTitle =
+            data.editData?.quizTitle || data.quizTitle;
+
         await this.quizPage.verifyQuizNotPresent(
+            currentQuizTitle
+        );
+    }
+);
+    When(
+    'The trainer edits the quiz using the {string} dataset',
+    async function (
+        this: CustomWorld,
+        datasetName: string
+    ) {
+
+        const data =
+            quizData[
+                datasetName as keyof typeof quizData
+            ];
+
+        if (!data) {
+            throw new Error(
+                `Dataset "${datasetName}" was not found in quizDataset.json`
+            );
+        }
+
+        if (!data.editData) {
+            throw new Error(
+                `Edit data was not found for dataset "${datasetName}"`
+            );
+        }
+
+        await this.quizPage.clickEditQuiz(
             data.quizTitle
+        );
+
+        await this.quizPage.updateQuizTitle(
+            data.editData.quizTitle
+        );
+
+        await this.quizPage.updateQuestion(
+            data.editData.questionText
+        );
+
+        await this.quizPage.updateQuestionOptions(
+            data.editData.options,
+            data.editData.correctAnswer
+        );
+
+        await this.quizPage.saveEditedQuiz();
+    }
+);
+Then(
+    'The trainer should see the updated quiz details for the {string} dataset',
+    async function (
+        this: CustomWorld,
+        datasetName: string
+    ) {
+
+        const data =
+            quizData[
+                datasetName as keyof typeof quizData
+            ];
+
+        if (!data) {
+            throw new Error(
+                `Dataset "${datasetName}" was not found in quizDataset.json`
+            );
+        }
+
+        if (!data.editData) {
+            throw new Error(
+                `Edit data was not found for dataset "${datasetName}"`
+            );
+        }
+
+        const quizDetails =
+            await this.quizPage.getQuizDetails(
+                data.editData.quizTitle
+            );
+
+        if (
+            quizDetails.questionCount !==
+            data.questions.length
+        ) {
+            throw new Error(
+                `Expected ${data.questions.length} questions, ` +
+                `but found ${quizDetails.questionCount}.`
+            );
+        }
+
+        logger.info(
+            `Verified updated quiz: ${data.editData.quizTitle}`
         );
     }
 );

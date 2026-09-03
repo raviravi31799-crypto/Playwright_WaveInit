@@ -65,6 +65,7 @@ export class QuizPage extends BasePage {
     // ==========================================
     // Constructor
     // ==========================================
+ 
 
     constructor(page: Page) {
 
@@ -654,21 +655,6 @@ export class QuizPage extends BasePage {
     // reasonable selectors for the pencil icon
     // ==========================================
 
-    private editButton(
-        quizTitle: string
-    ): Locator {
-
-        const row = this.quizRow(quizTitle);
-
-        return row
-            .locator(".cqt-action-btn--edit")
-            .or(row.locator("button[aria-label='Edit' i]"))
-            .or(row.locator("button[title='Edit' i]"))
-            .or(row.locator("button:has(svg.lucide-pencil)"))
-            .or(row.locator("button:has(svg.lucide-edit)"))
-            .or(row.locator("button:has(svg.lucide-square-pen)"))
-            .or(row.locator("[data-testid='edit-quiz']"));
-    }
 
 
     // ==========================================
@@ -985,6 +971,141 @@ export class QuizPage extends BasePage {
             state: "hidden"
         });
     }
+ private editButton(quizTitle: string): Locator {
+    const row = this.quizRow(quizTitle);
+
+    return row.locator('button[title="Edit"]');
+}
+async clickEditQuiz(quizTitle: string): Promise<void> {
+
+    logger.info(`Editing quiz: ${quizTitle}`);
+
+    const row = this.quizRow(quizTitle);
+
+    await expect.poll(
+        async () => {
+            return await row.count();
+        },
+        {
+            timeout: 30000,
+            message: `Quiz "${quizTitle}" was not found in the quiz list.`
+        }
+    ).toBeGreaterThan(0);
+
+    logger.info(`Quiz row found: ${quizTitle}`);
+
+    await row.first().scrollIntoViewIfNeeded();
+
+    const editButton = row.locator(
+        'button[title="Edit"]'
+    );
+
+    await expect.poll(
+        async () => {
+            return await editButton.count();
+        },
+        {
+            timeout: 10000,
+            message: `Edit button was not found for quiz "${quizTitle}".`
+        }
+    ).toBeGreaterThan(0);
+
+    await editButton.first().waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    logger.info(
+        `Clicking Edit button for: ${quizTitle}`
+    );
+
+    await editButton.first().click();
+
+    // Do NOT wait for the "Edit quiz" heading.
+    // Confirm the modal by waiting for the quiz title input,
+    // which is visibly present in the Edit Quiz modal.
+    await this.quizTitleInput.waitFor({
+        state: "visible",
+        timeout: 15000
+    });
+
+    logger.info(
+        `Edit quiz modal opened for: ${quizTitle}`
+    );
+}
+async updateQuizTitle(title: string): Promise<void> {
+    logger.info(`Updating quiz title to: ${title}`);
+
+    await this.quizTitleInput.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    await this.quizTitleInput.fill(title);
+}
+async updateQuestion(
+    questionText: string
+): Promise<void> {
+    logger.info(`Updating question to: ${questionText}`);
+
+    const question = this.questionField(0);
+
+    await question.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    await question.fill(questionText);
+}
+async updateQuestionOptions(
+    options: string[],
+    correctAnswer: string
+): Promise<void> {
+
+    logger.info("Updating question options");
+
+    for (let i = 0; i < options.length; i++) {
+
+        const option = this.optionField(0, i);
+
+        await option.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        await option.fill(options[i]);
+    }
+
+    const correctIndex = options.indexOf(correctAnswer);
+
+    if (correctIndex === -1) {
+        throw new Error(
+            `Correct answer "${correctAnswer}" was not found in options.`
+        );
+    }
+
+    await this.optionRadio(
+        0,
+        correctIndex
+    ).check();
+}
+async saveEditedQuiz(): Promise<void> {
+    logger.info("Saving edited quiz");
+
+    await this.saveChangesButton.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    await this.saveChangesButton.click();
+
+    await this.editQuizModalTitle.waitFor({
+        state: "hidden",
+        timeout: 15000
+    });
+
+    logger.info("Edited quiz saved successfully");
+}
 }
 
 
