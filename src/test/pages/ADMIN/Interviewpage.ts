@@ -52,7 +52,13 @@ private interviewTypeDropdown = this.page
 private durationDropdown = this.page
     .locator('label', { hasText: /^Duration$/ })
     .locator('xpath=following-sibling::select');
-   
+    private viewInterviewButton = this.page.getByTitle('View Details').first();
+   // private viewInterviewButton=this.page.locator("//button[@title='View Details']").first();
+    private interviewDetailsModal = this.page.locator('.reg-modal');
+
+    private interviewDetailsTitle = this.interviewDetailsModal.getByText('Interview Details');
+
+    // private closeDetailsButton = this.interviewDetailsModal.locator('button').first();
 
     async openInterviewsPage(): Promise<void> {
 
@@ -358,5 +364,16 @@ async enterInterviewTime(time: string): Promise<void> {
             })
         ).toBeVisible();
         console.log("Interview scheduled");
+    }
+
+   
+
+    async clickViewInterview() {
+        await this.viewInterviewButton.click();
+    }
+
+    async verifyInterviewDetailsDisplayed() {
+        await expect(this.interviewDetailsModal).toBeVisible();
+        await expect(this.interviewDetailsTitle).toBeVisible();
     }
 }
