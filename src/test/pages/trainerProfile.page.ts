@@ -4,22 +4,16 @@ import { logger } from "../utils/logger";
 
 export class TrainerProfilePage extends BasePage {
 
-
     readonly profileLogo: Locator;
     readonly myProfile: Locator;
 
-
     readonly skillsHeading: Locator;
     readonly addSkillButton: Locator;
-
     readonly skillInput: Locator;
     readonly addSkillSubmitButton: Locator;
-
     readonly skillList: Locator;
 
-
     readonly addExperienceButton: Locator;
-
     readonly companyNameInput: Locator;
     readonly roleInput: Locator;
     readonly startDateInput: Locator;
@@ -29,11 +23,18 @@ export class TrainerProfilePage extends BasePage {
     readonly roleRequiredMessage: Locator;
     readonly startDateRequiredMessage: Locator;
 
+    // ==================================================
+    // ADD PROJECT LOCATORS
+    // ==================================================
+
+    readonly addProjectButton: Locator;
+    readonly projectTitleInput: Locator;
+    readonly addProjectSubmitButton: Locator;
+
 
     constructor(page: Page) {
 
         super(page);
-
 
         this.profileLogo = page.locator(
             "//*[@id='root']/div[1]/aside/div[2]/div/button/div[2]/div[1]"
@@ -42,7 +43,6 @@ export class TrainerProfilePage extends BasePage {
         this.myProfile = page.locator(
             "//*[@id='root']/div[1]/aside/div[2]/div/div[2]/button[1]"
         );
-
 
         this.skillsHeading = page.locator(
             "//*[@id='main-content']/div/div/div[4]/div[2]/div[1]"
@@ -65,10 +65,13 @@ export class TrainerProfilePage extends BasePage {
         );
 
 
+        // ==================================================
+        // EXPERIENCE LOCATORS
+        // ==================================================
+
         this.addExperienceButton = page.locator(
             "//*[@id='main-content']/div/div/div[4]/div[2]/div[2]/div[1]/div[2]/button[1]"
         );
-
 
         this.companyNameInput = page.locator(
             'input[placeholder="e.g. Wave Init Solutions"]'
@@ -79,8 +82,6 @@ export class TrainerProfilePage extends BasePage {
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
 
-
-
         this.roleInput = page.locator(
             'input[placeholder="e.g. Trainee Software Engineer"]'
         );
@@ -89,7 +90,6 @@ export class TrainerProfilePage extends BasePage {
             this.roleInput.locator(
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
-
 
         this.startDateInput = page.locator(
             'input[type="date"]'
@@ -100,12 +100,32 @@ export class TrainerProfilePage extends BasePage {
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
 
-
         this.addExperienceSubmitButton = page.locator(
+            "//*[@id='main-content']/div/div/div[5]/div/div[3]/button[2]"
+        );
+
+
+        // ==================================================
+        // PROJECT LOCATORS
+        // ==================================================
+
+        this.addProjectButton = page.locator(
+            "//*[@id='main-content']/div/div/div[4]/div[2]/div[2]/div[1]/div[2]/button[2]"
+        );
+
+        this.projectTitleInput = page.locator(
+            "//*[@id='main-content']/div/div/div[5]/div/div[2]/form/div[1]/input"
+        );
+
+        this.addProjectSubmitButton = page.locator(
             "//*[@id='main-content']/div/div/div[5]/div/div[3]/button[2]"
         );
     }
 
+
+    // ==================================================
+    // OPEN PROFILE
+    // ==================================================
 
     async openProfileMenu(): Promise<void> {
 
@@ -170,6 +190,10 @@ export class TrainerProfilePage extends BasePage {
         );
     }
 
+
+    // ==================================================
+    // ADD SKILL
+    // ==================================================
 
     async clickAddSkill(): Promise<void> {
 
@@ -262,6 +286,10 @@ export class TrainerProfilePage extends BasePage {
         );
     }
 
+
+    // ==================================================
+    // ADD EXPERIENCE
+    // ==================================================
 
     async clickAddExperience(): Promise<void> {
 
@@ -375,6 +403,7 @@ export class TrainerProfilePage extends BasePage {
         );
     }
 
+
     async clickAddExperienceSubmit(): Promise<void> {
 
         logger.info(
@@ -402,7 +431,6 @@ export class TrainerProfilePage extends BasePage {
             `Verifying required validation message for "${missingField}"`
         );
 
-
         if (missingField === "Company Name") {
 
             await expect(
@@ -424,6 +452,7 @@ export class TrainerProfilePage extends BasePage {
 
             return;
         }
+
 
         if (missingField === "Role") {
 
@@ -473,6 +502,80 @@ export class TrainerProfilePage extends BasePage {
 
         throw new Error(
             `Unknown validation field: ${missingField}`
+        );
+    }
+
+
+    // ==================================================
+    // ADD PROJECT
+    // ==================================================
+
+    async clickAddProject(): Promise<void> {
+
+        logger.info(
+            "Clicking Add Project button"
+        );
+
+        await this.addProjectButton.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        await this.addProjectButton.click();
+
+        logger.info(
+            "Add Project form opened"
+        );
+    }
+
+
+    async enterProjectTitle(
+        projectTitle: string
+    ): Promise<void> {
+
+        logger.info(
+            `Entering project title: "${projectTitle}"`
+        );
+
+        await this.projectTitleInput.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        if (projectTitle.trim() === "") {
+
+            logger.info(
+                "Project Title intentionally left empty"
+            );
+
+            return;
+        }
+
+        await this.projectTitleInput.fill(
+            projectTitle
+        );
+
+        logger.info(
+            `Project Title entered successfully: "${projectTitle}"`
+        );
+    }
+
+
+    async clickAddProjectSubmit(): Promise<void> {
+
+        logger.info(
+            "Clicking Add Project submit button"
+        );
+
+        await this.addProjectSubmitButton.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        await this.addProjectSubmitButton.click();
+
+        logger.info(
+            "Add Project submit button clicked"
         );
     }
 }

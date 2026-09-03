@@ -35,3 +35,15 @@ Feature: Verify Trainer profile functionality in WaveInit
             |             | Software Engineer | 2022-06-01 | Company Name |
             | TCS         |                   | 2022-06-01 | Role         |
             | TCS         | Software Engineer |            | Start Date   |
+
+
+    @addProject
+    Scenario Outline: Verify trainer can add project in profile
+        When the trainer clicks on Add Project
+        And the trainer enters project title "<projectTitle>"
+        And the trainer clicks on Add Project button
+
+        Examples:
+            | projectTitle       |
+            | Playwright Project |
+            | Selenium Project   |  
