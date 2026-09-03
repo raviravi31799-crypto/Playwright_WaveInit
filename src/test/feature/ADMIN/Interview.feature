@@ -19,7 +19,7 @@ Examples:
       | Project Manager Interview            | 30-08-2026    | 02:00PM       | In-Platform (Interview in this app) | Managerial    | 60 minutes | Managerial discussion                     |
       | Custom Interview                     | 31-08-2026    | 03:00PM       | In-Platform (Interview in this app) | Custom        | 30 minutes | Custom interview scheduled through test   |
 
-@view
+
 Scenario: Verify admin can view interview details
 When the admin clicks the View Details action for an interview
 Then the interview details should be displayed
