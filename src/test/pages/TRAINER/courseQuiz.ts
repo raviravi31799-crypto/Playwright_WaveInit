@@ -829,57 +829,7 @@ export class QuizPage extends BasePage {
     // Publish Quiz — with diagnostics
     // ==========================================
 
-    async publishQuiz(
-        quizTitle: string
-    ): Promise<void> {
-
-        logger.info(
-            `Publishing quiz: ${quizTitle}`
-        );
-
-        const row =
-            this.quizRow(quizTitle);
-
-        await row.waitFor({
-            state: "visible"
-        });
-
-        const publishBtn = this.publishButton(quizTitle);
-
-        const count = await publishBtn.count();
-
-        if (count === 0) {
-
-            const html = await row.innerHTML();
-            logger.error(`No publish button found. Row HTML: ${html}`);
-
-            throw new Error(
-                `Publish button not found for quiz "${quizTitle}". ` +
-                `See logged row HTML above to fix the selector.`
-            );
-        }
-
-        await this.click(
-            publishBtn.first(),
-            "Publish Quiz"
-        );
-
-        await this.confirmPublishButton.waitFor({
-            state: "visible",
-            timeout: 15000
-        });
-
-        await this.click(
-            this.confirmPublishButton,
-            "Confirm Publish"
-        );
-
-        await this.confirmPublishButton.waitFor({
-            state: "hidden",
-            timeout: 15000
-        });
-    }
-
+    
 
     // ==========================================
     // Preview Quiz Row Locator — tries several
@@ -1105,6 +1055,153 @@ async saveEditedQuiz(): Promise<void> {
     });
 
     logger.info("Edited quiz saved successfully");
+}
+async publishQuiz(quizTitle: string): Promise<void> {
+
+    logger.info(
+        `Publishing quiz: ${quizTitle}`
+    );
+
+    const row =
+        this.quizRow(quizTitle);
+
+    await expect
+        .poll(
+            async () => await row.count(),
+            {
+                timeout: 30000,
+                message:
+                    `Quiz "${quizTitle}" did not appear in the list within 30 seconds.`
+            }
+        )
+        .toBeGreaterThan(0);
+
+    logger.info(
+        `Quiz row found: ${quizTitle}`
+    );
+
+    await row.first().scrollIntoViewIfNeeded();
+
+    // Locate the paper-plane Publish/Send button
+    const publishBtn =
+        this.publishButton(quizTitle);
+
+    await expect
+        .poll(
+            async () => await publishBtn.count(),
+            {
+                timeout: 10000,
+                message:
+                    `Publish button was not found for quiz "${quizTitle}".`
+            }
+        )
+        .toBeGreaterThan(0);
+
+    await publishBtn.first().waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    logger.info(
+        `Clicking Publish button for quiz: ${quizTitle}`
+    );
+
+    await publishBtn.first().click();
+
+    // Wait for Send Quiz confirmation modal
+    const sendQuizModal =
+        this.page.getByRole(
+            "heading",
+            {
+                name: "Send Quiz",
+                exact: true
+            }
+        );
+
+    await sendQuizModal.waitFor({
+        state: "visible",
+        timeout: 15000
+    });
+
+    logger.info(
+        "Send Quiz confirmation modal opened"
+    );
+
+    // Confirm sending the quiz
+    const yesSendButton =
+        this.page.getByRole(
+            "button",
+            {
+                name: "Yes, Send",
+                exact: true
+            }
+        );
+
+    await yesSendButton.waitFor({
+        state: "visible",
+        timeout: 10000
+    });
+
+    logger.info(
+        `Confirming publish for quiz: ${quizTitle}`
+    );
+
+    await yesSendButton.click();
+
+    // Wait for status to become PUBLISHED
+    const statusCell =
+        row.first().locator("td").nth(4);
+
+    await expect
+        .poll(
+            async () => {
+                return (
+                    await statusCell.innerText()
+                ).trim().toUpperCase();
+            },
+            {
+                timeout: 30000,
+                message:
+                    `Quiz "${quizTitle}" did not become PUBLISHED within 30 seconds.`
+            }
+        )
+        .toBe("PUBLISHED");
+
+    logger.info(
+        `Quiz "${quizTitle}" published successfully`
+    );
+}
+async verifyQuizPublished(quizTitle: string): Promise<void> {
+    logger.info(`Verifying published status for quiz: ${quizTitle}`);
+
+    const row = this.quizRow(quizTitle);
+
+    await expect
+        .poll(
+            async () => await row.count(),
+            {
+                timeout: 30000,
+                message: `Quiz "${quizTitle}" was not found in the list.`,
+            }
+        )
+        .toBeGreaterThan(0);
+
+    const statusCell = row
+        .first()
+        .locator("td")
+        .nth(4);
+
+    await expect
+        .poll(
+            async () => (await statusCell.innerText()).trim(),
+            {
+                timeout: 30000,
+                message: `Quiz "${quizTitle}" did not have PUBLISHED status.`,
+            }
+        )
+        .toBe("PUBLISHED");
+
+    logger.info(`Verified quiz is PUBLISHED: ${quizTitle}`);
 }
 }
 

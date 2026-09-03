@@ -307,3 +307,64 @@ Then(
         );
     }
 );
+When(
+    'The trainer publishes the quiz using the {string} dataset',
+    async function (
+        this: CustomWorld,
+        datasetName: string
+    ) {
+        const data =
+            quizData[
+                datasetName as keyof typeof quizData
+            ];
+
+        if (!data) {
+            throw new Error(
+                `Dataset "${datasetName}" was not found in quizDataset.json`
+            );
+        }
+
+        // Publish scenario runs before Edit scenario,
+        // so use the original quiz title.
+        const quizTitle = data.quizTitle;
+
+        await this.quizPage.publishQuiz(
+            quizTitle
+        );
+    }
+);
+Then(
+    'The quiz should be displayed with status {string} for the {string} dataset',
+    async function (
+        this: CustomWorld,
+        expectedStatus: string,
+        datasetName: string
+    ) {
+        const data =
+            quizData[
+                datasetName as keyof typeof quizData
+            ];
+
+        if (!data) {
+            throw new Error(
+                `Dataset "${datasetName}" was not found in quizDataset.json`
+            );
+        }
+
+        if (expectedStatus !== "PUBLISHED") {
+            throw new Error(
+                `Unsupported expected status: ${expectedStatus}`
+            );
+        }
+
+        const quizTitle = data.quizTitle;
+
+        await this.quizPage.verifyQuizPublished(
+            quizTitle
+        );
+
+        logger.info(
+            `Verified quiz "${quizTitle}" has status "${expectedStatus}"`
+        );
+    }
+);

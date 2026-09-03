@@ -22,6 +22,15 @@ Examples:
     | dataset   |
     | variables |
     | arrays    |
+@publishQuiz
+Scenario Outline: Verify trainer can publish an existing quiz
+    When The trainer publishes the quiz using the "<dataset>" dataset
+    Then The quiz should be displayed with status "PUBLISHED" for the "<dataset>" dataset
+
+Examples:
+    | dataset   |
+    | variables |
+    | arrays    |
 @EditQuiz
 Scenario Outline: Verify trainer can edit an existing quiz
     When The trainer edits the quiz using the "<dataset>" dataset
