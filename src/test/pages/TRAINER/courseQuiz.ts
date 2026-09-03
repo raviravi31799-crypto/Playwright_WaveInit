@@ -88,8 +88,12 @@ export class QuizPage extends BasePage {
             }
         );
 
-        this.createManuallyButton = page.locator(
-            ".cqt-btn-manual"
+        this.createManuallyButton = page.getByRole(
+            "button",
+            {
+                name: "Create Manually",
+                exact: true
+            }
         );
 
         this.quizTitleInput = page.getByPlaceholder(
@@ -188,30 +192,13 @@ export class QuizPage extends BasePage {
             "Opening AI Quiz tab"
         );
 
+        // Keep the original working behaviour:
+        // just click the AI Quiz tab. The application itself
+        // loads the quiz content asynchronously.
         await this.click(
             this.aiQuizTab,
             "AI Quiz"
         );
-
-        // The quiz page loads its data asynchronously after the tab is clicked.
-        // Wait until the quiz section/table is actually rendered.
-        await expect.poll(
-            async () => {
-                const url = this.page.url();
-                const tableCount = await this.quizTable.count();
-
-                return url.includes("section=quizzes") && tableCount > 0;
-            },
-            {
-                timeout: 30000,
-                message: "AI Quiz section did not finish loading."
-            }
-        ).toBe(true);
-
-        await this.quizTable.waitFor({
-            state: "visible",
-            timeout: 30000
-        });
     }
 
 
@@ -222,13 +209,37 @@ export class QuizPage extends BasePage {
     async clickCreateManually(): Promise<void> {
 
         logger.info(
-            "Clicking Create Manually"
+            "Waiting for Create Manually button"
         );
 
-        await this.click(
-            this.createManuallyButton,
-            "Create Manually"
+        await this.createManuallyButton.waitFor({
+            state: "visible",
+            timeout: 30000
+        });
+
+        await expect(
+            this.createManuallyButton
+        ).toBeEnabled({
+            timeout: 10000
+        });
+
+        await this.createManuallyButton.scrollIntoViewIfNeeded();
+
+        logger.info(
+            "Create Manually button is visible and enabled"
         );
+
+        await this.createManuallyButton.click();
+
+        logger.info(
+            "Create Manually clicked successfully"
+        );
+
+        // Confirm that the Create Manually form opened.
+        await this.quizTitleInput.waitFor({
+            state: "visible",
+            timeout: 15000
+        });
     }
 
 
@@ -421,15 +432,15 @@ export class QuizPage extends BasePage {
     ): Locator {
 
         return this.page
-            .getByText(
-                quizTitle,
-                {
-                    exact: true
-                }
-            )
-            .locator(
-                "xpath=ancestor::tr"
-            );
+            .locator("tr")
+            .filter({
+                has: this.page.getByText(
+                    quizTitle,
+                    {
+                        exact: true
+                    }
+                )
+            });
     }
 
 
@@ -466,17 +477,13 @@ export class QuizPage extends BasePage {
         });
 
 
-        const questionCountText =
-            await row
-                .locator("td.cqt-cell-num")
-                .textContent();
+        const cells = row.locator("td");
 
+        const questionCountText =
+            await cells.nth(3).textContent();
 
         const statusText =
-            await row
-                .locator(".cqt-badge")
-                .first()
-                .textContent();
+            await cells.nth(4).textContent();
 
 
         return {
@@ -520,8 +527,9 @@ export class QuizPage extends BasePage {
 
         const rows = this.quizRows(quizTitle);
 
-        // The AI Quiz table is rendered first and its rows are populated
-        // asynchronously. Do not check count immediately after navigation.
+        // The AI Quiz page loads the rows asynchronously.
+        // Wait for the requested quiz to appear instead of
+        // checking rows.count() immediately.
         await expect.poll(
             async () => await rows.count(),
             {
@@ -531,7 +539,8 @@ export class QuizPage extends BasePage {
             }
         ).toBeGreaterThan(0);
 
-        const rowCountBefore = await rows.count();
+        const rowCountBefore =
+            await rows.count();
 
         logger.info(
             `Found ${rowCountBefore} quiz row(s) with title "${quizTitle}".`
@@ -544,25 +553,27 @@ export class QuizPage extends BasePage {
             timeout: 10000
         });
 
-        const deleteBtn = this.deleteButton(quizTitle);
+        // This selector is confirmed by the application's HTML.
+        const deleteBtn = row.locator(
+            'button[title="Delete"]'
+        );
 
-        if (await deleteBtn.count() === 0) {
-            const html = await row.innerHTML();
-            logger.error(`No delete button found. Row HTML: ${html}`);
-            throw new Error(
-                `Delete button not found for quiz "${quizTitle}".`
-            );
-        }
+        await expect(deleteBtn).toBeVisible({
+            timeout: 10000
+        });
 
         await this.click(
-            deleteBtn.first(),
+            deleteBtn,
             "Delete Quiz"
         );
 
-        const confirmDeleteButton = this.page.getByRole(
-            "button",
-            { name: "Delete Permanently" }
-        );
+        const confirmDeleteButton =
+            this.page.getByRole(
+                "button",
+                {
+                    name: "Delete Permanently"
+                }
+            );
 
         await confirmDeleteButton.waitFor({
             state: "visible",
@@ -574,36 +585,40 @@ export class QuizPage extends BasePage {
             "Delete Permanently"
         );
 
-        const expectedCount = rowCountBefore - 1;
+        const expectedCount =
+            rowCountBefore - 1;
 
         try {
+
             await expect.poll(
-                async () => await this.quizRows(quizTitle).count(),
+                async () =>
+                    await this.quizRows(
+                        quizTitle
+                    ).count(),
                 {
                     timeout: 15000,
                     message:
-                        `Expected "${quizTitle}" count to change from ` +
-                        `${rowCountBefore} to ${expectedCount}.`
+                        `Quiz "${quizTitle}" was not removed from the list.`
                 }
             ).toBe(expectedCount);
+
         } catch {
+
             logger.info(
-                `Quiz list did not update immediately. Reloading once.`
+                "Quiz list did not update immediately. Reloading once."
             );
 
             await this.reload();
 
-            await this.quizTable.waitFor({
-                state: "visible",
-                timeout: 30000
-            });
-
             await expect.poll(
-                async () => await this.quizRows(quizTitle).count(),
+                async () =>
+                    await this.quizRows(
+                        quizTitle
+                    ).count(),
                 {
-                    timeout: 15000,
+                    timeout: 20000,
                     message:
-                        `After reload, "${quizTitle}" count should be ${expectedCount}.`
+                        `After reload, quiz "${quizTitle}" was not removed.`
                 }
             ).toBe(expectedCount);
         }
