@@ -123,10 +123,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    // ==================================================
-    // OPEN PROFILE
-    // ==================================================
-
     async openProfileMenu(): Promise<void> {
 
         logger.info(
