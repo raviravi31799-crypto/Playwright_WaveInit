@@ -4,55 +4,37 @@ import { logger } from "../utils/logger";
 
 export class TrainerProfilePage extends BasePage {
 
-    // ==================================================
-    // PROFILE MENU
-    // ==================================================
-
     readonly profileLogo: Locator;
     readonly myProfile: Locator;
 
-
-    // ==================================================
-    // SKILLS SECTION
-    // ==================================================
-
     readonly skillsHeading: Locator;
     readonly addSkillButton: Locator;
-
-    // Add Skill Form
     readonly skillInput: Locator;
     readonly addSkillSubmitButton: Locator;
-
-    // Skill displayed in profile
     readonly skillList: Locator;
 
-
-    // ==================================================
-    // EXPERIENCE SECTION
-    // ==================================================
-
     readonly addExperienceButton: Locator;
-
-    // Add Experience Form
     readonly companyNameInput: Locator;
     readonly roleInput: Locator;
     readonly startDateInput: Locator;
     readonly addExperienceSubmitButton: Locator;
 
-    // Required validation messages
     readonly companyNameRequiredMessage: Locator;
     readonly roleRequiredMessage: Locator;
     readonly startDateRequiredMessage: Locator;
+
+    // ==================================================
+    // ADD PROJECT LOCATORS
+    // ==================================================
+
+    readonly addProjectButton: Locator;
+    readonly projectTitleInput: Locator;
+    readonly addProjectSubmitButton: Locator;
 
 
     constructor(page: Page) {
 
         super(page);
-
-
-        // ==================================================
-        // PROFILE MENU
-        // ==================================================
 
         this.profileLogo = page.locator(
             "//*[@id='root']/div[1]/aside/div[2]/div/button/div[2]/div[1]"
@@ -61,11 +43,6 @@ export class TrainerProfilePage extends BasePage {
         this.myProfile = page.locator(
             "//*[@id='root']/div[1]/aside/div[2]/div/div[2]/button[1]"
         );
-
-
-        // ==================================================
-        // SKILLS SECTION
-        // ==================================================
 
         this.skillsHeading = page.locator(
             "//*[@id='main-content']/div/div/div[4]/div[2]/div[1]"
@@ -89,17 +66,12 @@ export class TrainerProfilePage extends BasePage {
 
 
         // ==================================================
-        // EXPERIENCE
+        // EXPERIENCE LOCATORS
         // ==================================================
 
         this.addExperienceButton = page.locator(
             "//*[@id='main-content']/div/div/div[4]/div[2]/div[2]/div[1]/div[2]/button[1]"
         );
-
-
-        // ==================================================
-        // COMPANY NAME
-        // ==================================================
 
         this.companyNameInput = page.locator(
             'input[placeholder="e.g. Wave Init Solutions"]'
@@ -110,11 +82,6 @@ export class TrainerProfilePage extends BasePage {
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
 
-
-        // ==================================================
-        // ROLE
-        // ==================================================
-
         this.roleInput = page.locator(
             'input[placeholder="e.g. Trainee Software Engineer"]'
         );
@@ -123,11 +90,6 @@ export class TrainerProfilePage extends BasePage {
             this.roleInput.locator(
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
-
-
-        // ==================================================
-        // START DATE
-        // ==================================================
 
         this.startDateInput = page.locator(
             'input[type="date"]'
@@ -138,24 +100,33 @@ export class TrainerProfilePage extends BasePage {
                 "xpath=following-sibling::div[contains(@class,'pfd-error-msg')]"
             );
 
-
-        // ==================================================
-        // ADD EXPERIENCE SUBMIT BUTTON
-        // ==================================================
-
         this.addExperienceSubmitButton = page.locator(
+            "//*[@id='main-content']/div/div/div[5]/div/div[3]/button[2]"
+        );
+
+
+        // ==================================================
+        // PROJECT LOCATORS
+        // ==================================================
+
+        this.addProjectButton = page.locator(
+            "//*[@id='main-content']/div/div/div[4]/div[2]/div[2]/div[1]/div[2]/button[2]"
+        );
+
+        this.projectTitleInput = page.locator(
+            "//*[@id='main-content']/div/div/div[5]/div/div[2]/form/div[1]/input"
+        );
+
+        this.addProjectSubmitButton = page.locator(
             "//*[@id='main-content']/div/div/div[5]/div/div[3]/button[2]"
         );
     }
 
 
     // ==================================================
-    // PROFILE METHODS
+    // OPEN PROFILE
     // ==================================================
 
-    /**
-     * Click Trainer profile logo
-     */
     async openProfileMenu(): Promise<void> {
 
         logger.info(
@@ -175,9 +146,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Click My Profile
-     */
     async clickMyProfile(): Promise<void> {
 
         logger.info(
@@ -201,9 +169,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Verify Trainer Profile page
-     */
     async verifyProfilePage(): Promise<void> {
 
         logger.info(
@@ -230,9 +195,6 @@ export class TrainerProfilePage extends BasePage {
     // ADD SKILL
     // ==================================================
 
-    /**
-     * Click Add button beside Skills
-     */
     async clickAddSkill(): Promise<void> {
 
         logger.info(
@@ -252,9 +214,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Enter Skill
-     */
     async enterSkill(
         skill: string
     ): Promise<void> {
@@ -278,9 +237,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Click Add button inside Add Skill form
-     */
     async clickAddSkillSubmit(): Promise<void> {
 
         logger.info(
@@ -300,9 +256,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Verify Skill is displayed
-     */
     async verifySkillAdded(
         skill: string
     ): Promise<void> {
@@ -338,9 +291,6 @@ export class TrainerProfilePage extends BasePage {
     // ADD EXPERIENCE
     // ==================================================
 
-    /**
-     * Click Add Experience
-     */
     async clickAddExperience(): Promise<void> {
 
         logger.info(
@@ -360,12 +310,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Enter Company Name
-     *
-     * Empty value is intentionally ignored
-     * for invalid test cases.
-     */
     async enterCompanyName(
         companyName: string
     ): Promise<void> {
@@ -398,12 +342,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Enter Role
-     *
-     * Empty value is intentionally ignored
-     * for invalid test cases.
-     */
     async enterRole(
         role: string
     ): Promise<void> {
@@ -434,12 +372,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Enter Start Date
-     *
-     * Empty value is intentionally ignored
-     * for invalid test cases.
-     */
     async enterStartDate(
         startDate: string
     ): Promise<void> {
@@ -472,9 +404,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    /**
-     * Click Add Experience button inside form
-     */
     async clickAddExperienceSubmit(): Promise<void> {
 
         logger.info(
@@ -494,14 +423,6 @@ export class TrainerProfilePage extends BasePage {
     }
 
 
-    // ==================================================
-    // VERIFY EXPERIENCE VALIDATION
-    // ==================================================
-
-    /**
-     * Verify required validation message
-     * for missing mandatory fields.
-     */
     async verifyExperienceValidation(
         missingField: string
     ): Promise<void> {
@@ -509,11 +430,6 @@ export class TrainerProfilePage extends BasePage {
         logger.info(
             `Verifying required validation message for "${missingField}"`
         );
-
-
-        // ==========================================
-        // COMPANY NAME
-        // ==========================================
 
         if (missingField === "Company Name") {
 
@@ -538,10 +454,6 @@ export class TrainerProfilePage extends BasePage {
         }
 
 
-        // ==========================================
-        // ROLE
-        // ==========================================
-
         if (missingField === "Role") {
 
             await expect(
@@ -564,10 +476,6 @@ export class TrainerProfilePage extends BasePage {
             return;
         }
 
-
-        // ==========================================
-        // START DATE
-        // ==========================================
 
         if (missingField === "Start Date") {
 
@@ -592,12 +500,82 @@ export class TrainerProfilePage extends BasePage {
         }
 
 
-        // ==========================================
-        // UNKNOWN FIELD
-        // ==========================================
-
         throw new Error(
             `Unknown validation field: ${missingField}`
+        );
+    }
+
+
+    // ==================================================
+    // ADD PROJECT
+    // ==================================================
+
+    async clickAddProject(): Promise<void> {
+
+        logger.info(
+            "Clicking Add Project button"
+        );
+
+        await this.addProjectButton.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        await this.addProjectButton.click();
+
+        logger.info(
+            "Add Project form opened"
+        );
+    }
+
+
+    async enterProjectTitle(
+        projectTitle: string
+    ): Promise<void> {
+
+        logger.info(
+            `Entering project title: "${projectTitle}"`
+        );
+
+        await this.projectTitleInput.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        if (projectTitle.trim() === "") {
+
+            logger.info(
+                "Project Title intentionally left empty"
+            );
+
+            return;
+        }
+
+        await this.projectTitleInput.fill(
+            projectTitle
+        );
+
+        logger.info(
+            `Project Title entered successfully: "${projectTitle}"`
+        );
+    }
+
+
+    async clickAddProjectSubmit(): Promise<void> {
+
+        logger.info(
+            "Clicking Add Project submit button"
+        );
+
+        await this.addProjectSubmitButton.waitFor({
+            state: "visible",
+            timeout: 10000
+        });
+
+        await this.addProjectSubmitButton.click();
+
+        logger.info(
+            "Add Project submit button clicked"
         );
     }
 }

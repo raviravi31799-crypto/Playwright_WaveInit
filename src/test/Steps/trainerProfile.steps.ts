@@ -233,3 +233,52 @@ Then(
         );
     }
 );
+
+
+// ==================================================
+// ADD PROJECT
+// ==================================================
+
+When(
+    "the trainer clicks on Add Project",
+    async function (this: CustomWorld) {
+
+        logger.info(
+            "Clicking Add Project"
+        );
+
+        await this.trainerProfilePage
+            .clickAddProject();
+    }
+);
+
+
+When(
+    "the trainer enters project title {string}",
+    async function (
+        this: CustomWorld,
+        projectTitle: string
+    ) {
+
+        logger.info(
+            `Entering project title: "${projectTitle}"`
+        );
+
+        await this.trainerProfilePage
+            .enterProjectTitle(projectTitle);
+    }
+);
+
+
+When(
+    "the trainer clicks on Add Project button",
+    async function (this: CustomWorld) {
+
+        logger.info(
+            "Clicking Add Project submit button"
+        );
+
+        await this.trainerProfilePage
+            .clickAddProjectSubmit();
+    }
+);
