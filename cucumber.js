@@ -15,7 +15,7 @@ module.exports = {
         ],
         paths: [
             "src/test/feature/**/*.feature",
-            "src/test/features/**/*.feature"
+            //"src/test/features/**/*.feature"
         ],
         publishQuiet: true,
         dryRun: false,

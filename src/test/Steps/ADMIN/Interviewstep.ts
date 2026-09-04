@@ -86,3 +86,10 @@ Then('the interview should be displayed in the scheduled interviews list', async
   await this.interviewpage.verifyInterviewScheduled();
 });
 
+When('the admin clicks the View Details action for an interview', async function () {
+  await this.interviewpage.clickViewInterview();
+});
+Then('the interview details should be displayed', async function () {
+  await this.interviewpage.verifyInterviewDetailsDisplayed();
+});
+
